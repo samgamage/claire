@@ -169,10 +169,6 @@ class MessagesContent extends React.Component {
       "keyboardDidShow",
       this._keyboardDidShow
     );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      this._keyboardDidHide
-    );
   }
 
   async componentDidMount() {
@@ -243,7 +239,7 @@ class MessagesContent extends React.Component {
     const { detachAllMessagesListen, detachConversationListen } = firebase;
     detachAllMessagesListen();
     detachConversationListen(conversationId);
-    Keyboard.removeAllListeners();
+    Keyboard.removeListener("keyboardDidShow");
   }
 
   _keyboardDidShow = e => {

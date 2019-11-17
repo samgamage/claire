@@ -29,8 +29,8 @@ class Picture extends React.Component {
     // the scale for blurRadius changes depending on the OS
     let min;
     let max;
-    if (Platform.OS === "ios") {
-      max = 100;
+    if (Platform.OS === 'ios') {
+      max = 130;
       min = 0;
     } else {
       max = 10;

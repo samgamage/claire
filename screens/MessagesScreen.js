@@ -13,8 +13,8 @@ import {
   TextInput,
   View
 } from "react-native";
-import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
 import Loading from "../components/Loading";
 import { withFirebase } from "../firebase/FirebaseContext";
@@ -356,6 +356,7 @@ class Messages extends React.Component {
           conversationId: null
         });
       } else {
+        console.log(conversations);
         const [thisConversation] = conversations.filter(
           conversation => conversation.id === user.conversation
         );
@@ -471,7 +472,7 @@ const styles = StyleSheet.create({
 
 const WrappedComponent = withFirebase(Messages);
 
-WrappedComponent.navigationOptions = ({ navigation }) => {
+WrappedComponent.navigationOptions = ({ navigation }) => ({
   headerRight: (
     <TouchableOpacity
       onPress={() => {
@@ -481,6 +482,6 @@ WrappedComponent.navigationOptions = ({ navigation }) => {
       <Feather name="x" size={24} style={{ marginRight: 16 }} />
     </TouchableOpacity>
   )
-};
+});
 
 export default WrappedComponent;

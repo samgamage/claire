@@ -48,6 +48,7 @@ export default class UserSwiper extends Component {
     if (user.hasOwnProperty("conversation")) {
       isSwipingDisabled = true;
     }
+    console.log(isSwipingDisabled);
     this.setState({ user, loading: false, isSwipingDisabled });
   }
 

@@ -211,9 +211,9 @@ class MessagesContent extends React.Component {
       // determine which ID belongs to current user
       let otherPersonId;
       if (this.props.firebase.auth.currentUser.uid == user1) {
-        otherPersonId = user1;
-      } else {
         otherPersonId = user2;
+      } else {
+        otherPersonId = user1;
       }
 
       this.setState({

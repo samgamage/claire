@@ -1,8 +1,10 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
@@ -30,15 +32,11 @@ class Picture extends React.Component {
     const thisBlurAmount = sentiment ? 10 - (sentiment + 1) * 5 : 10;
 
     return (
-      <Layout style={{ flex: 0.3 }}>
+      <Layout style={{ flex: 0.6 }}>
         {url ? (
           <Image
             source={{
               uri: url
-            }}
-            style={{
-              width: "100%",
-              height: "100%"
             }}
             blurRadius={thisBlurAmount}
             resizeMode="cover"
@@ -56,9 +54,19 @@ class MessageRow extends React.Component {
 
   render() {
     const { userIsSender, text } = this.props; // use this later.
-    return (
-      <View style={{ justifyContent: "center" }}>
-        <Text>{userIsSender ? `You said ${text}` : `They said ${text}`}</Text>
+    return userIsSender ? (
+      <View
+        style={{
+          ...styles.messageContainer,
+          width: "100%",
+          alignSelf: "flex-end"
+        }}
+      >
+        <Text style={styles.rightMessage}>{text}</Text>
+      </View>
+    ) : (
+      <View style={styles.messageContainer}>
+        <Text style={styles.leftMessage}>{text}</Text>
       </View>
     );
   }
@@ -84,7 +92,8 @@ class SendMessage extends React.Component {
 
   async handleSendMessage() {
     const { message } = this.state;
-    const { conversationId, firebase } = this.props;
+    const { conversationId, firebase, messageListRef } = this.props;
+    messageListRef.scrollToEnd({ animated: true });
 
     // ignore empty messages
     if (message.trim() == "") {
@@ -104,9 +113,10 @@ class SendMessage extends React.Component {
     return (
       <View style={styles.messageBox}>
         <TextInput
-          style={{ height: 40, flexGrow: 1 }}
+          style={styles.messageInput}
           placeholder="Type a message..."
           value={message}
+          autoCorrect={false}
           onChangeText={text => this.handleChangeText(text)}
         />
         <Button onPress={this.handleSendMessage}>Send</Button>
@@ -130,6 +140,14 @@ class MessagesContent extends React.Component {
 
     this.updateConversationSentiment = this.updateConversationSentiment.bind(
       this
+    );
+    this.keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      this._keyboardDidShow
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      this._keyboardDidHide
     );
   }
 
@@ -203,7 +221,25 @@ class MessagesContent extends React.Component {
     const { detachAllMessagesListen, detachConversationListen } = firebase;
     detachAllMessagesListen();
     detachConversationListen(conversationId);
+    Keyboard.removeAllListeners();
   }
+
+  _keyboardDidShow = e => {
+    this.messageList.scrollToEnd({ animated: true });
+    this.setState({
+      keyboardHeight: e.endCoordinates.height,
+      normalHeight: Dimensions.get("window").height,
+      shortHeight: Dimensions.get("window").height - e.endCoordinates.height
+    });
+  };
+
+  _keyboardDidHide = e => {
+    this.setState({
+      keyboardHeight: e.startCoordinates.height,
+      normalHeight: Dimensions.get("window").height,
+      shortHeight: Dimensions.get("window").height
+    });
+  };
 
   updateConversationSentiment() {
     const { messages } = this.state;
@@ -242,11 +278,19 @@ class MessagesContent extends React.Component {
     return (
       <KeyboardAvoidingView
         behavior="padding"
-        keyboardVerticalOffset={65}
         style={{ flex: 1, marginBottom: 49 }}
+        keyboardVerticalOffset={65}
       >
         <Picture sentiment={sentiment} url={otherPersonPicUrl} />
-        <ScrollView style={{ flex: 0.7 }}>
+        <ScrollView
+          style={{
+            flex: 0.4,
+            borderColor: "gray",
+            borderTopWidth: 1,
+            borderBottomWidth: 1
+          }}
+          ref={ref => (this.messageList = ref)}
+        >
           <FlatList
             style={{ flex: 1 }}
             data={messages}
@@ -259,7 +303,11 @@ class MessagesContent extends React.Component {
             keyExtractor={item => item.id}
           />
         </ScrollView>
-        <SendMessage conversationId={conversationId} firebase={firebase} />
+        <SendMessage
+          messageListRef={this.messageList}
+          conversationId={conversationId}
+          firebase={firebase}
+        />
       </KeyboardAvoidingView>
     );
   }
@@ -345,7 +393,31 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   messageBox: {
-    flexDirection: "row"
+    flexDirection: "row",
+    height: 40
+  },
+  messageInput: {
+    height: 40,
+    flexGrow: 1
+  },
+  rightMessage: {
+    textAlign: "right",
+    backgroundColor: "#FFC107",
+    borderRadius: 16,
+    padding: 6,
+    maxWidth: "70%",
+    alignSelf: "flex-end"
+  },
+  leftMessage: {
+    textAlign: "left",
+    borderRadius: 16,
+    backgroundColor: "lightgray",
+    padding: 6,
+    maxWidth: "70%",
+    alignSelf: "flex-start"
+  },
+  messageContainer: {
+    padding: 10
   }
 });
 

@@ -48,7 +48,7 @@ class Home extends React.Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <Layout style={styles}>
+        <Layout style={styles.alignCenter}>
           <Spinner />
         </Layout>
       );

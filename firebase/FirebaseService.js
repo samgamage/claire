@@ -24,6 +24,7 @@ export default class Firebase {
     }
     this.auth = app.auth();
     this.db = app.database();
+    this.storage = firebase.storage();
   }
 
   signInWithEmail = async (email, password) => {
@@ -172,10 +173,10 @@ export default class Firebase {
   };
 
   /**
-   * Like getAllMessages, but is called every time the database changes
+   * Like getAllMessages, but callback is called every time the database changes
    */
-  getAllMessagesListen = callback => {
-    console.log("LISTENER CALLED");
+  getAllMessagesListen = (callback) => {
+    console.log('MESSAGES LISTENER TRIGGERED');
     const messagesRef = this.messages();
     return messagesRef.on("value", snapshot => {
       const snapVal = snapshot.val();
@@ -185,6 +186,45 @@ export default class Firebase {
       }));
       callback(toReturn);
     });
+  };
+
+  /**
+   * Gets a conversation
+   * @param  {String} id ID of the conversation
+   * @return {Object}    Conversation object with structure:
+   * {
+   *   
+   * }
+   */
+  getConversation = (id) => {
+    return this.db.ref('conversation/' + id).once("value").then(snapshot => {
+      const snapVal = snapshot.val();
+      return snapVal;
+    });
+  };
+
+  /**
+   * Like getConversation, but listens in real time, and triggers callback whenever change
+   *   is detected to the specified conversation
+   */
+  getConversationListen = (id, callback) => {
+    console.log('CONVERSATION LISTENER TRIGGERED');
+    const messagesRef = this.db.ref('conversation/' + id);
+    return messagesRef.on("value", (snapshot) => {
+      const snapVal = snapshot.val();
+      callback(snapVal);
+    });
+  };
+
+  /**
+   * Gets the profile pic URL of a user.
+   *
+   * @param {String} uid - the ID of the user
+   *
+   * @return A Promise resolving to the profile pic URL of the desired user.
+   */
+  getProfilePic = (uid) => {
+    return this.storage.ref().child(`profilePics/${uid}.jpg`).getDownloadURL();
   };
 
   /**
@@ -198,6 +238,17 @@ export default class Firebase {
       content: text,
       conversation: conversationId,
       timestamp: Math.floor(new Date() / 1000)
+    });
+  };
+
+  /**
+   * Updates sentiment of a conversation
+   * @param {String} id   ID of the conversation to update the sentiment of
+   * @param {number} sentiment   New sentiment value
+   */
+  updateSentiment = (id, sentiment) => {
+    return this.db.ref(`conversation/${id}`).update({
+      sentiment: sentiment
     });
   };
 

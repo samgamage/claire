@@ -375,8 +375,10 @@ class Messages extends React.Component {
       ourView = <Loading />;
     } else if (shouldRender === false) {
       ourView = (
-        <View>
-          <Text>You haven't matched with anyone yet. Go meet some people!</Text>
+        <View style={style.alignCenter}>
+          <Text style={{ fontFamily: "avenir-next-regular" }}>
+            You haven't matched with anyone yet. Go meet some people!
+          </Text>
         </View>
       );
     } else {
@@ -420,7 +422,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 6,
     maxWidth: "70%",
-    alignSelf: "flex-end"
+    alignSelf: "flex-end",
+    fontFamily: "avenir-next-regular"
   },
   leftMessage: {
     textAlign: "left",
@@ -428,7 +431,8 @@ const styles = StyleSheet.create({
     backgroundColor: "lightgray",
     padding: 6,
     maxWidth: "70%",
-    alignSelf: "flex-start"
+    alignSelf: "flex-start",
+    fontFamily: "avenir-next-regular"
   },
   messageContainer: {
     padding: 10

@@ -176,7 +176,6 @@ class MessagesContent extends React.Component {
   async componentDidMount() {
     const { conversationId, firebase } = this.props;
     const {
-      getAllMessages,
       getAllMessagesListen,
       getConversationListen,
       filterMessages,
@@ -345,16 +344,13 @@ class Messages extends React.Component {
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
-      if (
-        (conversations == null || conversations.length === 0) &&
-        shouldRender == true
-      ) {
+      if ((conversations == null || conversations.length === 0) && shouldRender == true) {
         this.setState({
           shouldRender: false,
           loading: false,
           conversationId: null
         });
-      } else if (conversations.length > 0 && shouldRender == false) {
+      } else if (conversations && conversations.length > 0 && shouldRender == false) {
         const thisConversationId = conversations[0].id;
         this.setState({
           shouldRender: true,

@@ -180,6 +180,10 @@ export default class Firebase {
     const messagesRef = this.messages();
     return messagesRef.on("value", snapshot => {
       const snapVal = snapshot.val();
+      if (snapVal == null) {
+        callback([]);
+        return;
+      }
       const toReturn = Object.keys(snapVal).map(msgId => ({
         ...snapVal[msgId],
         id: msgId

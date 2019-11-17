@@ -5,6 +5,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import AuthLoading from "../screens/AuthLoading";
 import HomeScreen from "../screens/HomeScreen";
+import LeaveConversationScreen from "../screens/LeaveConversation";
 import LoginScreen from "../screens/LoginScreen";
 import MessagesScreen from "../screens/MessagesScreen";
 import ProfileScreen from "../screens/ProfileScreen";
@@ -36,6 +37,14 @@ MessagesStack.navigationOptions = () => {
       />
     )
   };
+};
+
+const LeaveConversationStack = createStackNavigator({
+  LeaveConversation: LeaveConversationScreen
+});
+
+LeaveConversationStack.navigationOptions = {
+  tabBarEnabled: false
 };
 
 const LoginStack = createStackNavigator(
@@ -112,7 +121,8 @@ const SwitchNav = createSwitchNavigator(
       screen: LoginStack
     },
     Root: { screen: RootStack },
-    AuthLoading: { screen: AuthLoading }
+    AuthLoading: { screen: AuthLoading },
+    LeaveConversation: { screen: LeaveConversationStack }
   },
   {
     initialRouteName: "AuthLoading"

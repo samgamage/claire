@@ -3,7 +3,7 @@ import lodash from "lodash";
 import React, { Component } from "react";
 import { Dimensions, Image, Platform, StyleSheet, Text } from "react-native";
 import Swiper from "react-native-deck-swiper";
-import { Button, Icon, Layout } from "react-native-ui-kitten";
+import { Button, Icon, Layout, Spinner } from "react-native-ui-kitten";
 import uuid from "uuid";
 
 const LikeIcon = style => (
@@ -33,8 +33,22 @@ export default class UserSwiper extends Component {
       swipedAllCards: false,
       swipeDirection: "",
       cardIndex: 0,
-      loading: true
+      loading: true,
+      isSwipingDisabled: false,
+      isSwiping: false
     };
+  }
+
+  async componentDidMount() {
+    const uid = this.props.firebase.auth.currentUser.uid;
+    const userRef = this.props.firebase.user(uid);
+    const userSnapshot = await userRef.once("value");
+    const user = userSnapshot.val();
+    let isSwipingDisabled = false;
+    if (user.hasOwnProperty("conversation")) {
+      isSwipingDisabled = true;
+    }
+    this.setState({ user, loading: false, isSwipingDisabled });
   }
 
   renderCard = user => {
@@ -66,6 +80,7 @@ export default class UserSwiper extends Component {
   };
 
   onSwiped = async (type, index) => {
+    this.setState({ isSwiping: true });
     const uid = this.props.firebase.auth.currentUser.uid;
     const cardUserId = this.props.users[index].id;
     await this.props.firebase.userSeen(uid, cardUserId).set({ id: cardUserId });
@@ -106,7 +121,12 @@ export default class UserSwiper extends Component {
           await this.props.firebase
             .userConversation(cardUser.id)
             .set(conversation.id);
+          this.setState({ isSwipingDisabled: true, isSwiping: false });
+        } else {
+          this.setState({ isSwiping: false });
         }
+      } else {
+        this.setState({ isSwiping: false });
       }
     }
   };
@@ -122,6 +142,14 @@ export default class UserSwiper extends Component {
   };
 
   render() {
+    if (this.state.loading) {
+      return (
+        <Layout styles={styles.alignCenter}>
+          <Spinner />
+        </Layout>
+      );
+    }
+
     return (
       <Layout style={styles.container}>
         {!this.state.swipedAllCards && this.props.users.length > 0 ? (
@@ -138,6 +166,10 @@ export default class UserSwiper extends Component {
             renderCard={this.renderCard}
             onSwipedAll={this.onSwipedAllCards}
             backgroundColor="#fff"
+            verticalSwipe={false}
+            horzionalSwipe={
+              !this.state.isSwiping || !this.state.isSwipingDisabled
+            }
             stackSize={3}
             cardVerticalMargin={40}
             overlayLabels={{

@@ -1,19 +1,18 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { light as lightTheme, mapping } from "@eva-design/eva";
+import React from "react";
+import { ApplicationProvider } from "react-native-ui-kitten";
+import FirebaseContext from "./firebase/FirebaseContext";
+import Firebase from "./firebase/FirebaseService";
+import AppNavigator from "./navigators/AppNavigator";
 
-export default function App() {
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
+    <FirebaseContext.Provider value={new Firebase()}>
+      <ApplicationProvider mapping={mapping} theme={lightTheme}>
+        <AppNavigator />
+      </ApplicationProvider>
+    </FirebaseContext.Provider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;

@@ -76,6 +76,8 @@ export default class Firebase {
 
   users = () => this.db.ref("users");
 
+  messages = () => this.db.ref("messages");
+
   /**
    * @param gender 0 or 1 (1: male, 0: female)
    * @param distanceThreshold distance threshold in meters
@@ -126,8 +128,6 @@ export default class Firebase {
       .child("swiped")
       .child(sid);
 
-  messages = () => this.db.ref("messages");
-
   getCurrentUser = async () => {
     const token = await AsyncStorage.getItem("userToken");
     return JSON.parse(token);
@@ -137,5 +137,53 @@ export default class Firebase {
     const array = [];
     Object.keys(obj).forEach(key => array.push(obj[key]));
     return array;
+  };
+
+  /**
+   * Gets all messages. Includes ID of messages. 
+   * @return {Array} An Array of message Objects, which look like:
+   * {
+   *   content: 'something',
+   *   conversation: 'conversationId',
+   *   sender: 'someUserId',
+   *   timestamp: someTimestamp
+   *   id: 'someMessageId'
+   * }
+   */
+  getAllMessages = () => {
+    const messagesRef = this.messages();
+    return messagesRef.once('value').then((snapshot) => {
+      const snapVal = snapshot.val();
+      return Object.keys(snapVal).map(msgId => ({
+        ...snapVal[msgId],
+        id: msgId
+      }));
+    });
+  };
+
+  uploadMessage = () => {
+    
+  };
+
+  /**
+   * Filters an array of messages, taking out messages not belonging to the specified
+   *   conversation.
+   * @param  {String} id       ID of the conversation to filter for messages
+   * @param  {Array} messages Array of messages; see getAllMessages for message structure. 
+   */
+  filterMessages = (id, messages) => {
+    return messages.filter(msg => msg.conversation === id)
+  };
+
+  /**
+   * Sorts messages by their timestamp. Returns a NEW ARRAY; does not mutate input.
+   * @param  {Array} messages Array of messages; see getAllMessages for message structure.
+   */
+  sortMessages = (messages) => {
+    const toSort = [...messages];
+    toSort.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
+    return toSort;
   };
 }

@@ -1,3 +1,4 @@
 These don't have to be implemented for hackathon. Just notes for if we want to send this to production.
 
 * messages retrieval is currently get-all-messages-then-filter, change to query
+    * also poses security vulnerability

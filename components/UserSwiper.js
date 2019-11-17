@@ -62,7 +62,7 @@ export default class UserSwiper extends Component {
     console.log(this.state.swipedAllCards);
     console.log(this.state.cards);
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         {!this.state.swipedAllCards && (
           <Swiper
             ref={swiper => {
@@ -123,7 +123,7 @@ export default class UserSwiper extends Component {
         )}
         {this.state.swipedAllCards && <Text>No more</Text>}
         {/* <Button onPress={() => this.swiper.swipeBack()} title="Swipe Back" /> */}
-      </SafeAreaView>
+      </View>
     );
   }
 }

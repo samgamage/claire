@@ -9,7 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View
+  View,
 } from "react-native";
 import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
@@ -26,10 +26,12 @@ class Picture extends React.Component {
     const { sentiment, url } = this.props;
 
     // sentiment from -1 to 1 scales linearly with blur amount from 1 to 10
-    // first add 1 to sentiment to get x where 0 < x < 2
-    // then multiply by 5 to get y where 0 < y < 10
+    // first add 1 to sentiment to get x where 0 <= x < 2
+    // then multiply by 6 to get y where 0 <= y < 10
     // finally, subtract from 10 to invert for blurRadius
-    const thisBlurAmount = sentiment ? 10 - (sentiment + 1) * 5 : 10;
+    const thisBlurAmount = (sentiment == null)
+      ? 10
+      : 10 - ((sentiment + 1) * 5)
 
     return (
       <Layout style={{ flex: 0.6 }}>
@@ -38,9 +40,11 @@ class Picture extends React.Component {
             source={{
               uri: url
             }}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
             blurRadius={thisBlurAmount}
-            resizeMode="cover"
-          />
         ) : null}
       </Layout>
     );
@@ -157,7 +161,6 @@ class MessagesContent extends React.Component {
       getAllMessages,
       getAllMessagesListen,
       getConversationListen,
-      getConversationsListen,
       filterMessages,
       sortMessages
     } = firebase;
@@ -184,7 +187,7 @@ class MessagesContent extends React.Component {
 
     // updates profile picture when conversation (sentiment) changes; run once when component mounts
     getConversationListen(conversationId, conversationObj => {
-      if (!conversationObj || !conversationObj.sentiment) {
+      if (!conversationObj || conversationObj.sentiment == null) {
         return;
       }
 
@@ -332,10 +335,7 @@ class Messages extends React.Component {
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
-      if (
-        conversations == null ||
-        (conversations.length === 0 && shouldRender == true)
-      ) {
+      if ((conversations == null || conversations.length === 0) && shouldRender == true) {
         this.setState({
           shouldRender: false,
           loading: false,

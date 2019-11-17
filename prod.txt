@@ -4,3 +4,4 @@ These don't have to be implemented for hackathon. Just notes for if we want to s
     * also poses security vulnerability
 * a user's swiped array will become polluted over time--should cleanup (no implementation harm)
 * expand profile pictures before .jpg-only compatibility, and/or convert it before upload somehow
+* remove user from list of potential swipes when they're in a conversation

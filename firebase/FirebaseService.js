@@ -2,6 +2,7 @@ import firebase from "firebase";
 import app from "firebase/app";
 import * as geolib from "geolib";
 import { AsyncStorage } from "react-native";
+import uuid from 'uuid';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzgMTmPJXZiCdySEwT1xyiN2ykJlZfdxY",
@@ -161,7 +162,35 @@ export default class Firebase {
     });
   };
 
-  uploadMessage = () => {};
+  /**
+   * Like getAllMessages, but is called every time the database changes
+   */
+  getAllMessagesListen = (callback) => {
+    console.log('LISTENER CALLED');
+    const messagesRef = this.messages();
+    return messagesRef.on("value", (snapshot) => {
+      const snapVal = snapshot.val();
+      const toReturn = Object.keys(snapVal).map(msgId => ({
+        ...snapVal[msgId],
+        id: msgId
+      }));
+      callback(toReturn);
+    });
+  };
+
+  /**
+   * Uploads a message.
+   */
+  uploadMessage = (text, conversationId) => {
+    const uid = this.auth.currentUser.uid;
+    const id = uuid.v4();
+    return this.db.ref('messages/' + id).set({
+      sender: uid,
+      content: text,
+      conversation: conversationId,
+      timestamp: Math.floor(new Date() / 1000)
+    });  
+  };
 
   /**
    * Filters an array of messages, taking out messages not belonging to the specified

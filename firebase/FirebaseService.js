@@ -110,6 +110,8 @@ export default class Firebase {
     });
   };
 
+  messages = () => this.db.ref("messages");
+
   getCurrentUser = async () => {
     const token = await AsyncStorage.getItem("userToken");
     return JSON.parse(token);

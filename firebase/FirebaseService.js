@@ -1,5 +1,5 @@
 import app from "firebase";
-import geolib from "geolib";
+import * as geolib from "geolib";
 import { AsyncStorage } from "react-native";
 
 const firebaseConfig = {
@@ -91,7 +91,8 @@ export default class Firebase {
     const usersObj = usersSnapshot.val();
     const usersArray = Object.keys(usersObj).map(key => usersObj[key]);
     return usersArray.filter(user => {
-      if (!user.location) {
+      if (user.id === otherUser.id || !user.location || !user.location.coords) {
+        console.log("Here");
         return false;
       }
       const distanceObjUser = {
@@ -102,6 +103,9 @@ export default class Firebase {
         latitude: otherUser.location.coords.latitude,
         longitude: otherUser.location.coords.longitude
       };
+      console.log(distanceObjOtherUser);
+      console.log(distanceObjUser);
+      console.log(geolib.getDistance(distanceObjUser, distanceObjOtherUser));
       return (
         user.gender == gender &&
         geolib.getDistance(distanceObjUser, distanceObjOtherUser) <

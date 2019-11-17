@@ -17,7 +17,7 @@ class Home extends React.Component {
 
   async componentDidMount() {
     const uid = await this.props.firebase.getCurrentUser();
-    const location = this._getLocationAsync(uid);
+    this._getLocationAsync(uid);
     const userRef = this.props.firebase.user(uid);
     const userSnapshot = await userRef.once("value");
     const user = userSnapshot.val();

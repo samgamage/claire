@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 import React from "react";
 import {
@@ -13,6 +14,7 @@ import {
   View
 } from "react-native";
 import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { getSentiment } from "../api/api";
 import Loading from "../components/Loading";
 import { withFirebase } from "../firebase/FirebaseContext";
@@ -469,6 +471,16 @@ const styles = StyleSheet.create({
 
 const WrappedComponent = withFirebase(Messages);
 
-WrappedComponent.navigationOptions = ({ navigation }) => {};
+WrappedComponent.navigationOptions = ({ navigation }) => {
+  headerRight: (
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate("LeaveConversation");
+      }}
+    >
+      <Feather name="x" size={24} style={{ marginRight: 16 }} />
+    </TouchableOpacity>
+  )
+};
 
 export default WrappedComponent;

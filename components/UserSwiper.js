@@ -30,7 +30,6 @@ export default class UserSwiper extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cards: this.props.users,
       swipedAllCards: false,
       swipeDirection: "",
       cardIndex: 0,
@@ -68,14 +67,11 @@ export default class UserSwiper extends Component {
 
   onSwiped = async (type, index) => {
     const uid = this.props.firebase.auth.currentUser.uid;
-    const cardUserId = this.state.cards[index].id;
-    console.log(cardUser);
+    const cardUser = this.props.users[index];
     await this.props.firebase
       .userSeen(uid, cardUser.id)
       .set({ id: cardUser.id });
-    const cardUserRef = this.props.firebase.user(cardUserId);
-    const cardUserSnapshot = await cardUserRef.once("value");
-    const cardUser = cardUserSnapshot.val();
+
     if (type === 1) {
       const swipedRef = this.props.firebase.userSwiped(uid, cardUser.id);
       await swipedRef.set({ id: cardUser.id });
@@ -130,7 +126,7 @@ export default class UserSwiper extends Component {
   render() {
     return (
       <Layout style={styles.container}>
-        {!this.state.swipedAllCards && this.state.cards.length > 0 ? (
+        {!this.state.swipedAllCards && this.props.users.length > 0 ? (
           <Swiper
             ref={swiper => {
               this.swiper = swiper;
@@ -139,7 +135,7 @@ export default class UserSwiper extends Component {
             onSwipedLeft={index => this.onSwiped(0, index)}
             onSwipedRight={index => this.onSwiped(1, index)}
             onTapCard={this.swipeLeft}
-            cards={this.state.cards}
+            cards={this.props.users}
             cardIndex={this.state.cardIndex}
             renderCard={this.renderCard}
             onSwipedAll={this.onSwipedAllCards}
@@ -196,7 +192,7 @@ export default class UserSwiper extends Component {
             </Text>
           </Layout>
         )}
-        {!this.state.swipedAllCards && this.state.cards.length > 0 && (
+        {!this.state.swipedAllCards && this.props.users.length > 0 && (
           <Layout
             style={{
               position: "absolute",

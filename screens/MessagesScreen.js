@@ -45,6 +45,7 @@ class Picture extends React.Component {
               height: "100%",
             }}
             blurRadius={thisBlurAmount}
+          />
         ) : null}
       </Layout>
     );

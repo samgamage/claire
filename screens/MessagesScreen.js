@@ -341,6 +341,9 @@ class Messages extends React.Component {
     const { shouldRender } = this.state;
     const { firebase } = this.props;
     const { getConversationsListen } = firebase;
+    const userRef = this.props.firebase.user(firebase.auth.currentUser.uid);
+    const userSnapshot = await userRef.once("value");
+    const user = userSnapshot.val();
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
@@ -351,7 +354,9 @@ class Messages extends React.Component {
           conversationId: null
         });
       } else {
-        const thisConversationId = conversations[0].id;
+        const thisConversationId = conversations.filter(
+          conversation => conversation.id === user.conversation
+        );
         this.setState({
           shouldRender: true,
           loading: false,

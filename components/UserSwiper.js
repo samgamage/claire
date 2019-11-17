@@ -102,12 +102,10 @@ export default class UserSwiper extends Component {
           await this.props.firebase
             .conversation(conversation.id)
             .set(conversation);
+          await this.props.firebase.userConversation(uid).set(conversation.id);
           await this.props.firebase
-            .userConversation(uid, conversation.id)
-            .set({ id: conversation.id });
-          await this.props.firebase
-            .userConversation(cardUser.id, conversation.id)
-            .set({ id: conversation.id });
+            .userConversation(cardUser.id)
+            .set(conversation.id);
         }
       }
     }

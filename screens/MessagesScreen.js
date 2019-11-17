@@ -1,15 +1,16 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
-  Platform
+  View
 } from "react-native";
 import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
@@ -28,29 +29,29 @@ class Picture extends React.Component {
     // the scale for blurRadius changes depending on the OS
     let min;
     let max;
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       max = 100;
       min = 0;
     } else {
       max = 10;
       min = 0;
-    }   
+    }
 
     // sentiment from -1 to 1 scales linearly with blur amount from min to max
     // first add 1 to sentiment to get x where 0 <= x < 2
     // then multiply by max to get y where 0 <= y < max
     // finally, subtract from max to invert for blurRadius
-    const thisBlurAmount = sentiment == null ? max : max - (sentiment + 1) * (max / 2);
+    const thisBlurAmount =
+      sentiment == null ? max : max - (sentiment + 1) * (max / 2);
 
     return (
-      <Layout style={{ flex: 0.6 }}>
+      <Layout style={{ flex: 1 }}>
         {url ? (
           <Image
             source={{
               uri: url
             }}
             style={{
-              width: "100%",
               height: "100%"
             }}
             blurRadius={thisBlurAmount}
@@ -107,7 +108,9 @@ class SendMessage extends React.Component {
   async handleSendMessage() {
     const { message } = this.state;
     const { conversationId, firebase, messageListRef } = this.props;
-    messageListRef.scrollToEnd();
+    setTimeout(() => {
+      messageListRef.scrollToEnd();
+    }, 50);
 
     // ignore empty messages
     if (message.trim() == "") {
@@ -133,7 +136,12 @@ class SendMessage extends React.Component {
           autoCorrect={false}
           onChangeText={text => this.handleChangeText(text)}
         />
-        <Button onPress={this.handleSendMessage}>Send</Button>
+        <Button
+          ref={ref => (this.buttonRef = ref)}
+          onPress={this.handleSendMessage}
+        >
+          Send
+        </Button>
       </View>
     );
   }
@@ -238,7 +246,9 @@ class MessagesContent extends React.Component {
   }
 
   _keyboardDidShow = e => {
-    this.messageList.scrollToEnd();
+    setTimeout(() => {
+      this.messageList.scrollToEnd();
+    }, 50);
   };
 
   updateConversationSentiment() {
@@ -279,7 +289,7 @@ class MessagesContent extends React.Component {
       <KeyboardAvoidingView
         behavior="padding"
         style={{ flex: 1, marginBottom: 49 }}
-        keyboardVerticalOffset={65}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 65 : 80}
       >
         <Picture sentiment={sentiment} url={otherPersonPicUrl} />
         <ScrollView
@@ -401,7 +411,8 @@ const styles = StyleSheet.create({
   },
   messageInput: {
     height: 40,
-    flexGrow: 1
+    flexGrow: 1,
+    maxWidth: Dimensions.get("window").width - 75
   },
   rightMessage: {
     textAlign: "right",

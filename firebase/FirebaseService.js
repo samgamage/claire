@@ -137,7 +137,7 @@ export default class Firebase {
 
   usersSeen = (uid, sid) => this.db.ref(`users/${uid}/seen`);
 
-  conversation = uid => this.db.ref(`conversation`);
+  conversation = cid => this.db.ref(`conversation/${cid}`);
 
   getCurrentUser = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -175,8 +175,8 @@ export default class Firebase {
   /**
    * Like getAllMessages, but callback is called every time the database changes
    */
-  getAllMessagesListen = (callback) => {
-    console.log('MESSAGES LISTENER TRIGGERED');
+  getAllMessagesListen = callback => {
+    console.log("MESSAGES LISTENER TRIGGERED");
     const messagesRef = this.messages();
     return messagesRef.on("value", snapshot => {
       const snapVal = snapshot.val();
@@ -199,14 +199,17 @@ export default class Firebase {
    * @param  {String} id ID of the conversation
    * @return {Object}    Conversation object with structure:
    * {
-   *   
+   *
    * }
    */
-  getConversation = (id) => {
-    return this.db.ref('conversation/' + id).once("value").then(snapshot => {
-      const snapVal = snapshot.val();
-      return snapVal;
-    });
+  getConversation = id => {
+    return this.db
+      .ref("conversation/" + id)
+      .once("value")
+      .then(snapshot => {
+        const snapVal = snapshot.val();
+        return snapVal;
+      });
   };
 
   /**
@@ -214,9 +217,9 @@ export default class Firebase {
    *   is detected to the specified conversation
    */
   getConversationListen = (id, callback) => {
-    console.log('CONVERSATION LISTENER TRIGGERED');
-    const messagesRef = this.db.ref('conversation/' + id);
-    return messagesRef.on("value", (snapshot) => {
+    console.log("CONVERSATION LISTENER TRIGGERED");
+    const messagesRef = this.db.ref("conversation/" + id);
+    return messagesRef.on("value", snapshot => {
       const snapVal = snapshot.val();
       callback(snapVal);
     });
@@ -276,8 +279,11 @@ export default class Firebase {
    *
    * @return A Promise resolving to the profile pic URL of the desired user.
    */
-  getProfilePic = (uid) => {
-    return this.storage.ref().child(`profilePics/${uid}.jpg`).getDownloadURL();
+  getProfilePic = uid => {
+    return this.storage
+      .ref()
+      .child(`profilePics/${uid}.jpg`)
+      .getDownloadURL();
   };
 
   /**

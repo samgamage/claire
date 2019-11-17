@@ -7,9 +7,11 @@ import AuthLoading from "../screens/AuthLoading";
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import MessagesScreen from "../screens/MessagesScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 const HomeStack = createStackNavigator({
-  Home: HomeScreen
+  Home: HomeScreen,
+  Profile: ProfileScreen
 });
 
 HomeStack.navigationOptions = () => {

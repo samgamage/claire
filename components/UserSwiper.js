@@ -68,13 +68,19 @@ export default class UserSwiper extends Component {
 
   onSwiped = async (type, index) => {
     const uid = this.props.firebase.auth.currentUser.uid;
-    const cardUser = this.state.cards[index];
+    const cardUserId = this.state.cards[index].id;
+    console.log(cardUser);
     await this.props.firebase
       .userSeen(uid, cardUser.id)
       .set({ id: cardUser.id });
+    const cardUserRef = this.props.firebase.user(cardUserId);
+    const cardUserSnapshot = await cardUserRef.once("value");
+    const cardUser = cardUserSnapshot.val();
     if (type === 1) {
       const swipedRef = this.props.firebase.userSwiped(uid, cardUser.id);
       await swipedRef.set({ id: cardUser.id });
+      console.log("cardUser.swiped:");
+      console.log(cardUser.swiped);
       if (cardUser.swiped) {
         console.log(
           lodash.findIndex(

@@ -28,7 +28,7 @@ class LoginScreen extends React.Component {
       <Container>
         <RootContainer>
           <SafeAreaView>
-            <Text>🔥 Flame</Text>
+            <Text>Claire</Text>
             <Formik
               initialValues={{ email: "", password: "" }}
               onSubmit={values => this.onLogin(values.email, values.password)}

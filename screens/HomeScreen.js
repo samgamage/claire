@@ -81,9 +81,7 @@ const styles = StyleSheet.create({
 const WrappedComponent = withFirebase(Home);
 
 WrappedComponent.navigationOptions = ({ navigation }) => ({
-  headerTitle: (
-    <Text style={{ fontFamily: "avenir-next-bold" }}>🔥 Claire</Text>
-  ),
+  headerTitle: <Text style={{ fontFamily: "avenir-next-bold" }}>Claire</Text>,
   headerRight: (
     <TouchableOpacity
       onPress={() => {

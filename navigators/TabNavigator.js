@@ -31,11 +31,7 @@ HomeStack.navigationOptions = ({ navigation }) => {
   return {
     tabBarVisible,
     tabBarIcon: ({ focused }) => (
-      <Feather
-        name="home"
-        size={26}
-        color={focused ? Typography.activeColor : Typography.inactiveColor}
-      />
+      <Feather name="home" size={26} color={focused ? "orange" : "grey"} />
     )
   };
 };

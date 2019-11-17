@@ -38,6 +38,8 @@ class LoginScreen extends React.Component {
                 <React.Fragment>
                   <Input
                     placeholder="Email"
+                    autoCapitalize="none"
+                    keyboardAppearance="dark"
                     autoCompleteType="email"
                     value={values.email}
                     onChangeText={handleChange("email")}
@@ -46,8 +48,10 @@ class LoginScreen extends React.Component {
                   {errors.email && <Text>{errors.email}</Text>}
                   <Input
                     autoCompleteType="password"
+                    autoCapitalize="none"
                     value={values.password}
                     placeholder="Password"
+                    keyboardAppearance="dark"
                     onChangeText={handleChange("password")}
                     secureTextEntry={true}
                     onBlur={handleBlur("password")}

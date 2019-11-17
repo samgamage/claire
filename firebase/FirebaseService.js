@@ -26,6 +26,7 @@ export default class Firebase {
         password
       );
       await AsyncStorage.setItem("userToken", JSON.stringify(user.uid));
+      await this.user(user.uid).update({ id: user.uid });
       return user;
     } catch (e) {
       console.error(e);
@@ -37,8 +38,13 @@ export default class Firebase {
     const userObj = {
       email,
       username,
-      balance: 0,
-      categories: []
+      location: "",
+      age: null,
+      bio: "",
+      conversations: [],
+      gender: null,
+      picture: "",
+      swiped: []
     };
     try {
       const { user } = await this.auth.createUserWithEmailAndPassword(

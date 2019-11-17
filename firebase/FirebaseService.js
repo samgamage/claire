@@ -188,6 +188,12 @@ export default class Firebase {
     });
   };
 
+  detachAllMessagesListen = () => {
+    console.log('DETACHING ALL_MESSAGES LISTENER');
+    const messagesRef = this.messages();
+    return messagesRef.off();
+  };
+
   /**
    * Gets a conversation
    * @param  {String} id ID of the conversation
@@ -214,6 +220,53 @@ export default class Firebase {
       const snapVal = snapshot.val();
       callback(snapVal);
     });
+  };
+
+  detachConversationListen = (id) => {
+    console.log(`DETACHING CONVERSATION LISTENER FOR ${id}`)
+    const convoRef = this.db.ref('conversation/' + id);
+    convoRef.off();
+  };
+
+  /* Like getConversation, but grabs the entire root-level conversation object, and turns it into
+   *   an array of conversation objects, each object having same structure as those returned
+   * *
+   *  from getConversation.
+   */
+  getConversations = (callback) => {
+    const conversationsRef = this.db.ref('conversation');
+    return conversationsRef.once("value").then(snapshot => {
+      const snapVal = snapshot.val();
+      if (!snapVal) {
+        callback(null);
+        return;
+      }
+      return Object.keys(snapVal).map(convoId => ({
+        ...snapVal[convoId],
+        id: convoId
+      }));
+    });
+  };
+
+  /* Like getConversation, but grabs the entire root-level conversation object, and turns it into
+   *   an array of conversation objects, each object having same structure as those returned
+   * *
+   *  from getConversation.
+   */
+  getConversationsListen = (callback) => {
+    const conversationsRef = this.db.ref('conversation');
+    return conversationsRef.on("value", (snapshot) => {
+      const snapVal = snapshot.val();
+      if (!snapVal) {
+        callback(null);
+        return;
+      }
+      const toReturn = Object.keys(snapVal).map(convoId => ({
+        ...snapVal[convoId],
+        id: convoId
+      }));
+      callback(toReturn);
+    })
   };
 
   /**
@@ -247,6 +300,9 @@ export default class Firebase {
    * @param {number} sentiment   New sentiment value
    */
   updateSentiment = (id, sentiment) => {
+    console.log('FirebaseService.js id,', id);
+    console.log('FirebaseService.js sentiment,', sentiment);
+
     return this.db.ref(`conversation/${id}`).update({
       sentiment: sentiment
     });

@@ -6,10 +6,35 @@ import { createBottomTabNavigator } from "react-navigation-tabs";
 import AuthLoading from "../screens/AuthLoading";
 import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
+import MessagesScreen from "../screens/MessagesScreen";
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen
 });
+
+HomeStack.navigationOptions = () => {
+  return {
+    tabBarIcon: ({ focused }) => (
+      <Feather name="home" size={26} color={focused ? "orange" : "grey"} />
+    )
+  };
+};
+
+const MessagesStack = createStackNavigator({
+  Messages: MessagesScreen
+});
+
+MessagesStack.navigationOptions = () => {
+  return {
+    tabBarIcon: ({ focused }) => (
+      <Feather
+        name="message-circle"
+        size={26}
+        color={focused ? "orange" : "grey"}
+      />
+    )
+  };
+};
 
 const LoginStack = createStackNavigator(
   {
@@ -18,27 +43,10 @@ const LoginStack = createStackNavigator(
   { tabBarVisible: false }
 );
 
-HomeStack.navigationOptions = ({ navigation }) => {
-  const tabBarVisible = true;
-  const routeName = navigation.state.routes[navigation.state.index].routeName;
-
-  if (routeName === "Login") {
-    tabBarVisible = false;
-  }
-
-  // define which views show navigation bar based on route name
-
-  return {
-    tabBarVisible,
-    tabBarIcon: ({ focused }) => (
-      <Feather name="home" size={26} color={focused ? "orange" : "grey"} />
-    )
-  };
-};
-
 const TabNavigator = createBottomTabNavigator(
   {
-    HomeStack
+    HomeStack,
+    MessagesStack
   },
   {
     tabBarPosition: "bottom",

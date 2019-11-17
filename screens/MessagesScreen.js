@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import {
-  Dimensions,
   FlatList,
   Image,
   Keyboard,
@@ -9,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
+  View
 } from "react-native";
 import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
@@ -29,9 +28,7 @@ class Picture extends React.Component {
     // first add 1 to sentiment to get x where 0 <= x < 2
     // then multiply by 6 to get y where 0 <= y < 10
     // finally, subtract from 10 to invert for blurRadius
-    const thisBlurAmount = (sentiment == null)
-      ? 10
-      : 10 - ((sentiment + 1) * 5)
+    const thisBlurAmount = sentiment == null ? 10 : 10 - (sentiment + 1) * 5;
 
     return (
       <Layout style={{ flex: 0.6 }}>
@@ -42,7 +39,7 @@ class Picture extends React.Component {
             }}
             style={{
               width: "100%",
-              height: "100%",
+              height: "100%"
             }}
             blurRadius={thisBlurAmount}
           />
@@ -98,7 +95,7 @@ class SendMessage extends React.Component {
   async handleSendMessage() {
     const { message } = this.state;
     const { conversationId, firebase, messageListRef } = this.props;
-    messageListRef.scrollToEnd({ animated: true });
+    messageListRef.scrollToEnd();
 
     // ignore empty messages
     if (message.trim() == "") {
@@ -229,20 +226,7 @@ class MessagesContent extends React.Component {
   }
 
   _keyboardDidShow = e => {
-    this.messageList.scrollToEnd({ animated: true });
-    this.setState({
-      keyboardHeight: e.endCoordinates.height,
-      normalHeight: Dimensions.get("window").height,
-      shortHeight: Dimensions.get("window").height - e.endCoordinates.height
-    });
-  };
-
-  _keyboardDidHide = e => {
-    this.setState({
-      keyboardHeight: e.startCoordinates.height,
-      normalHeight: Dimensions.get("window").height,
-      shortHeight: Dimensions.get("window").height
-    });
+    this.messageList.scrollToEnd();
   };
 
   updateConversationSentiment() {
@@ -293,7 +277,10 @@ class MessagesContent extends React.Component {
             borderTopWidth: 1,
             borderBottomWidth: 1
           }}
-          ref={ref => (this.messageList = ref)}
+          ref={ref => {
+            this.messageList = ref;
+            ref && ref.scrollToEnd();
+          }}
         >
           <FlatList
             style={{ flex: 1 }}
@@ -336,7 +323,10 @@ class Messages extends React.Component {
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
-      if ((conversations == null || conversations.length === 0) && shouldRender == true) {
+      if (
+        (conversations == null || conversations.length === 0) &&
+        shouldRender == true
+      ) {
         this.setState({
           shouldRender: false,
           loading: false,

@@ -87,6 +87,8 @@ export default class UserSwiper extends Component {
             Object.keys(cardUser.swiped).map(key => cardUser.swiped[key].id),
             sid => sid === uid
           ) !== -1;
+
+        // MATCHED
         if (matched) {
           const conversation = {
             id: uuid.v4(),

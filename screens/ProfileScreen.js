@@ -38,20 +38,28 @@ class ProfileScreen extends React.Component {
       <Layout style={styles.root}>
         {this.state.user && (
           <React.Fragment>
-            <Layout style={styles.listItem}>
-              <Text style={styles.text}>Name</Text>
+            <Layout
+              style={{
+                ...styles.listItem,
+                borderTopWidth: 0
+              }}
+            >
+              <Text style={styles.boldText}>Name</Text>
               <Text style={styles.text}>{this.state.user.name}</Text>
             </Layout>
             <Layout style={styles.listItem}>
-              <Text style={styles.text}>Age: {this.state.user.age}</Text>
+              <Text style={styles.boldText}>Age</Text>
+              <Text style={styles.text}>{this.state.user.age}</Text>
             </Layout>
             <Layout style={styles.listItem}>
+              <Text style={styles.boldText}>Gender</Text>
               <Text style={styles.text}>
-                Gender: {this.state.user.gender === 1 ? "Male" : "Female"}
+                {this.state.user.gender === 1 ? "Male" : "Female"}
               </Text>
             </Layout>
             <Layout style={styles.listItem}>
-              <Text style={styles.text}>Bio: {this.state.user.bio}</Text>
+              <Text style={styles.boldText}>Bio</Text>
+              <Text style={styles.text}>{this.state.user.bio}</Text>
             </Layout>
           </React.Fragment>
         )}
@@ -77,6 +85,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: "avenir-next-regular"
+  },
+  boldText: {
+    fontFamily: "avenir-next-bold"
   }
 });
 const WrappedComponent = withFirebase(ProfileScreen);

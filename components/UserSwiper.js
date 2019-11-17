@@ -10,7 +10,7 @@ import {
   View
 } from "react-native";
 import Swiper from "react-native-deck-swiper";
-import { Button, Icon } from "react-native-ui-kitten";
+import { Button, Icon, Layout } from "react-native-ui-kitten";
 import uuid from "uuid";
 
 // demo purposes only
@@ -77,7 +77,9 @@ export default class UserSwiper extends Component {
             user1: uid,
             user2: cardUser.id
           };
-          await this.props.firebase.conversation(uid).set(conversation);
+          await this.props.firebase
+            .conversation(conversation.id)
+            .set(conversation);
         }
       }
     }
@@ -95,7 +97,7 @@ export default class UserSwiper extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <Layout style={styles.container}>
         {!this.state.swipedAllCards && this.state.cards.length > 0 ? (
           <Swiper
             ref={swiper => {
@@ -154,15 +156,15 @@ export default class UserSwiper extends Component {
             swipeBackCard
           />
         ) : (
-          <View style={styles.alignCenter}>
+          <Layout style={styles.alignCenter}>
             <Image source={require("../assets/empty.png")} />
             <Text style={{ fontFamily: "avenir-next-bold" }}>
               No users found
             </Text>
-          </View>
+          </Layout>
         )}
         {!this.state.swipedAllCards && this.state.cards.length > 0 && (
-          <View
+          <Layout
             style={{
               position: "absolute",
               top: Dimensions.get("screen").height / 2 + 20,
@@ -191,9 +193,9 @@ export default class UserSwiper extends Component {
             >
               <Feather name="heart" />
             </Button>
-          </View>
+          </Layout>
         )}
-      </View>
+      </Layout>
     );
   }
 }
@@ -201,7 +203,6 @@ export default class UserSwiper extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5FCFF",
     flexDirection: "column",
     marginBottom: 49
   },

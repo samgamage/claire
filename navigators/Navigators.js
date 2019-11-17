@@ -17,7 +17,7 @@ const HomeStack = createStackNavigator({
 HomeStack.navigationOptions = () => {
   return {
     tabBarIcon: ({ focused }) => (
-      <Feather name="home" size={26} color={focused ? "orange" : "grey"} />
+      <Feather name="home" size={26} color={focused ? "#FFA726" : "#E0E0E0"} />
     )
   };
 };
@@ -32,7 +32,7 @@ MessagesStack.navigationOptions = () => {
       <Feather
         name="message-circle"
         size={26}
-        color={focused ? "orange" : "grey"}
+        color={focused ? "#FFA726" : "#E0E0E0"}
       />
     )
   };
@@ -68,7 +68,6 @@ const TabNavigator = createBottomTabNavigator(
         left: 0,
         width: "100%",
         backgroundColor: "white",
-        borderColor: "rgb(27, 42, 51)",
         shadowColor: "red",
         elevation: 2
       },

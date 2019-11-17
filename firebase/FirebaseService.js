@@ -2,7 +2,7 @@ import firebase from "firebase";
 import app from "firebase/app";
 import * as geolib from "geolib";
 import { AsyncStorage } from "react-native";
-import uuid from 'uuid';
+import uuid from "uuid";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzgMTmPJXZiCdySEwT1xyiN2ykJlZfdxY",
@@ -87,7 +87,7 @@ export default class Firebase {
    * @param distanceThreshold distance threshold in meters
    */
   getAllUsersWithGenderAndDistanceAway = async (
-    otherUser,
+    user,
     gender,
     distanceThreshold
   ) => {
@@ -96,23 +96,28 @@ export default class Firebase {
 
     const usersObj = usersSnapshot.val();
     const usersArray = Object.keys(usersObj).map(key => usersObj[key]);
-    return usersArray.filter(user => {
-      if (user.id === otherUser.id || !user.location || !user.location.coords) {
+    return usersArray.filter(otherUser => {
+      if (
+        otherUser.id === user.id ||
+        !otherUser.location ||
+        !otherUser.location.coords ||
+        (user.hasOwnProperty("seen") && user.seen.hasOwnProperty(otherUser.id))
+      ) {
         return false;
       }
       const distanceObjUser = {
-        latitude: user.location.coords.latitude,
-        longitude: user.location.coords.longitude
-      };
-      const distanceObjOtherUser = {
         latitude: otherUser.location.coords.latitude,
         longitude: otherUser.location.coords.longitude
+      };
+      const distanceObjOtherUser = {
+        latitude: user.location.coords.latitude,
+        longitude: user.location.coords.longitude
       };
       console.log(
         "Distance: " + geolib.getDistance(distanceObjUser, distanceObjOtherUser)
       );
       return (
-        user.gender == gender &&
+        otherUser.gender == gender &&
         geolib.getDistance(distanceObjUser, distanceObjOtherUser) <
           distanceThreshold
       );
@@ -126,6 +131,10 @@ export default class Firebase {
       .child("swiped");
 
   userSwiped = (uid, sid) => this.db.ref(`users/${uid}/swiped/${sid}`);
+
+  userSeen = (uid, sid) => this.db.ref(`users/${uid}/seen/${sid}`);
+
+  usersSeen = (uid, sid) => this.db.ref(`users/${uid}/seen`);
 
   conversation = uid => this.db.ref(`conversation`);
 
@@ -165,10 +174,10 @@ export default class Firebase {
   /**
    * Like getAllMessages, but is called every time the database changes
    */
-  getAllMessagesListen = (callback) => {
-    console.log('LISTENER CALLED');
+  getAllMessagesListen = callback => {
+    console.log("LISTENER CALLED");
     const messagesRef = this.messages();
-    return messagesRef.on("value", (snapshot) => {
+    return messagesRef.on("value", snapshot => {
       const snapVal = snapshot.val();
       const toReturn = Object.keys(snapVal).map(msgId => ({
         ...snapVal[msgId],
@@ -184,12 +193,12 @@ export default class Firebase {
   uploadMessage = (text, conversationId) => {
     const uid = this.auth.currentUser.uid;
     const id = uuid.v4();
-    return this.db.ref('messages/' + id).set({
+    return this.db.ref("messages/" + id).set({
       sender: uid,
       content: text,
       conversation: conversationId,
       timestamp: Math.floor(new Date() / 1000)
-    });  
+    });
   };
 
   /**

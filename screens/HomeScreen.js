@@ -2,9 +2,9 @@ import { Feather } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import React from "react";
-import { View } from "react-native";
+import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Spinner, Text } from "react-native-ui-kitten";
+import { Layout, Spinner, Text } from "react-native-ui-kitten";
 import UserSwiper from "../components/UserSwiper";
 import { withFirebase } from "../firebase/FirebaseContext";
 
@@ -26,7 +26,7 @@ class Home extends React.Component {
     const users = await this.props.firebase.getAllUsersWithGenderAndDistanceAway(
       user,
       user.genderWant,
-      3218.69
+      3218.69 // 2 miles in meters,
     );
     this.setState({ user, users, isLoading: false });
   }
@@ -48,39 +48,47 @@ class Home extends React.Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View>
+        <Layout style={styles}>
           <Spinner />
-        </View>
+        </Layout>
       );
     }
 
     if (this.state.error) {
       return (
-        <View>
+        <Layout>
           <Text>{error.message}</Text>
-        </View>
+        </Layout>
       );
     }
 
     return (
-      <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Layout style={{ flex: 1, backgroundColor: "#fff" }}>
         <UserSwiper firebase={this.props.firebase} users={this.state.users} />
-      </View>
+      </Layout>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  alignCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  }
+});
+
 const WrappedComponent = withFirebase(Home);
 
 WrappedComponent.navigationOptions = ({ navigation }) => ({
-  headerTitle: <Text>🔥 Flame</Text>,
+  headerTitle: <Text style={{ fontFamily: "avenir-next-bold" }}>🔥 Flame</Text>,
   headerRight: (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate("Profile");
       }}
     >
-      <Feather name="user" size={24} style={{ marginRight: 8 }} />
+      <Feather name="user" size={24} style={{ marginRight: 16 }} />
     </TouchableOpacity>
   )
 });

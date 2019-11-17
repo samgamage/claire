@@ -1,7 +1,17 @@
+import { Feather } from "@expo/vector-icons";
 import lodash from "lodash";
 import React, { Component } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 import Swiper from "react-native-deck-swiper";
+import { Button, Icon } from "react-native-ui-kitten";
+import uuid from "uuid";
 
 // demo purposes only
 function* range(start, end) {
@@ -9,6 +19,10 @@ function* range(start, end) {
     yield i;
   }
 }
+
+const LikeIcon = style => <Icon {...style} name="heart-outline" />;
+
+const NotLikeIcon = style => <Icon {...style} name="close-outline" />;
 
 export default class UserSwiper extends Component {
   constructor(props) {
@@ -37,9 +51,12 @@ export default class UserSwiper extends Component {
   };
 
   onSwiped = async (type, index) => {
+    const uid = this.props.firebase.auth.currentUser.uid;
+    const cardUser = this.state.cards[index];
+    await this.props.firebase
+      .userSeen(uid, cardUser.id)
+      .set({ id: cardUser.id });
     if (type === 1) {
-      const uid = this.props.firebase.auth.currentUser.uid;
-      const cardUser = this.state.cards[index];
       const swipedRef = this.props.firebase.userSwiped(uid, cardUser.id);
       await swipedRef.set({ id: cardUser.id });
       if (cardUser.swiped) {
@@ -79,7 +96,7 @@ export default class UserSwiper extends Component {
   render() {
     return (
       <View style={styles.container}>
-        {!this.state.swipedAllCards && (
+        {!this.state.swipedAllCards && this.state.cards.length > 0 ? (
           <Swiper
             ref={swiper => {
               this.swiper = swiper;
@@ -92,6 +109,8 @@ export default class UserSwiper extends Component {
             cardIndex={this.state.cardIndex}
             renderCard={this.renderCard}
             onSwipedAll={this.onSwipedAllCards}
+            backgroundColor="#fff"
+            cardVerticalMargin={20}
             overlayLabels={{
               left: {
                 title: "NOPE",
@@ -134,8 +153,46 @@ export default class UserSwiper extends Component {
             animateCardOpacity
             swipeBackCard
           />
+        ) : (
+          <View style={styles.alignCenter}>
+            <Image source={require("../assets/empty.png")} />
+            <Text style={{ fontFamily: "avenir-next-bold" }}>
+              No users found
+            </Text>
+          </View>
         )}
-        {/* <Button onPress={() => this.swiper.swipeBack()} title="Swipe Back" /> */}
+        {!this.state.swipedAllCards && this.state.cards.length > 0 && (
+          <View
+            style={{
+              position: "absolute",
+              top: Dimensions.get("screen").height / 2 + 20,
+              margin: 20,
+              flex: 1,
+              width: Dimensions.get("screen").width - 40,
+              flexDirection: "row",
+              justifyContent: "space-around"
+            }}
+          >
+            <Button
+              icon={LikeIcon}
+              onPress={() => {
+                this.onSwiped("right", this.state.cardIndex);
+                this.swiper.swipeRight();
+              }}
+            >
+              <Feather name="heart" />
+            </Button>
+            <Button
+              icon={NotLikeIcon}
+              onPress={() => {
+                this.onSwiped("left", this.state.cardIndex);
+                this.swiper.swipeLeft();
+              }}
+            >
+              <Feather name="heart" />
+            </Button>
+          </View>
+        )}
       </View>
     );
   }
@@ -144,12 +201,21 @@ export default class UserSwiper extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5FCFF"
+    backgroundColor: "#F5FCFF",
+    flexDirection: "column",
+    marginBottom: 49
+  },
+  alignCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
   },
   card: {
-    flex: 1,
     borderRadius: 4,
+    padding: 16,
     borderWidth: 2,
+    flex: 1,
+    maxHeight: Dimensions.get("screen").height / 2,
     borderColor: "#E8E8E8",
     justifyContent: "center",
     backgroundColor: "white"
@@ -157,12 +223,6 @@ const styles = StyleSheet.create({
   text: {
     textAlign: "center",
     fontSize: 50,
-    backgroundColor: "transparent"
-  },
-  done: {
-    textAlign: "center",
-    fontSize: 30,
-    color: "white",
     backgroundColor: "transparent"
   }
 });

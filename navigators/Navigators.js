@@ -24,7 +24,8 @@ HomeStack.navigationOptions = () => {
 };
 
 const MessagesStack = createStackNavigator({
-  Messages: MessagesScreen
+  Messages: MessagesScreen,
+  LeaveConversation: LeaveConversationScreen
 });
 
 MessagesStack.navigationOptions = () => {
@@ -121,8 +122,7 @@ const SwitchNav = createSwitchNavigator(
       screen: LoginStack
     },
     Root: { screen: RootStack },
-    AuthLoading: { screen: AuthLoading },
-    LeaveConversation: { screen: LeaveConversationStack }
+    AuthLoading: { screen: AuthLoading }
   },
   {
     initialRouteName: "AuthLoading"

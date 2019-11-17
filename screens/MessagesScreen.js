@@ -8,6 +8,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -130,7 +131,7 @@ class SendMessage extends React.Component {
   render() {
     const { message } = this.state;
     return (
-      <View style={styles.messageBox}>
+      <SafeAreaView style={styles.messageBox}>
         <TextInput
           style={styles.messageInput}
           placeholder="Type a message..."
@@ -144,7 +145,7 @@ class SendMessage extends React.Component {
         >
           Send
         </Button>
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -285,7 +286,7 @@ class MessagesContent extends React.Component {
     return (
       <KeyboardAvoidingView
         behavior="padding"
-        style={{ flex: 1, marginBottom: 49 }}
+        style={{ flex: 1, marginBottom: 59 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 65 : 80}
       >
         <Picture sentiment={sentiment} url={otherPersonPicUrl} />

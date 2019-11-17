@@ -2,6 +2,7 @@ import { light, mapping } from "@eva-design/eva";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import * as Font from "expo-font";
 import React from "react";
+import { YellowBox } from 'react-native';
 import { ApplicationProvider, IconRegistry } from "react-native-ui-kitten";
 import FirebaseContext from "./firebase/FirebaseContext";
 import Firebase from "./firebase/FirebaseService";
@@ -37,6 +38,11 @@ class App extends React.Component {
     await Font.loadAsync({
       "avenir-next-bold": require("./assets/AvenirNextLTPro-Bold.otf")
     });
+
+    // hide the warning things
+    YellowBox.ignoreWarnings([
+      'Setting a timer'
+    ]);
 
     this.setState({ isLoading: false });
   }

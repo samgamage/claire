@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Platform } from 'react-native'
 import Swiper from "react-native-deck-swiper";
 
 // demo purposes only
@@ -67,6 +68,7 @@ export default class UserSwiper extends Component {
             ref={swiper => {
               this.swiper = swiper;
             }}
+            useViewOverflow={Platform.OS === 'ios'}
             onSwipedLeft={this.onSwipedLeft}
             onSwipedRight={this.onSwipedRight}
             onTapCard={this.swipeLeft}

@@ -467,4 +467,8 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withFirebase(Messages);
+const WrappedComponent = withFirebase(Messages);
+
+WrappedComponent.navigationOptions = ({ navigation }) => {};
+
+export default WrappedComponent;

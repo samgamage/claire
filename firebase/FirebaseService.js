@@ -104,7 +104,9 @@ export default class Firebase {
         otherUser.id === user.id ||
         !otherUser.location ||
         !otherUser.location.coords ||
-        (user.hasOwnProperty("seen") && user.seen.hasOwnProperty(otherUser.id))
+        (user.hasOwnProperty("seen") &&
+          user.seen.hasOwnProperty(otherUser.id)) ||
+        user.hasOwnProperty("conversation")
       ) {
         return false;
       }

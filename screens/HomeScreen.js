@@ -64,7 +64,7 @@ class Home extends React.Component {
 
     return (
       <View>
-        <UserSwiper users={this.state.users} />
+        <UserSwiper firebase={this.props.firebase} users={this.state.users} />
       </View>
     );
   }

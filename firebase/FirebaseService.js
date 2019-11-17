@@ -1,4 +1,5 @@
-import app from "firebase";
+import firebase from "firebase";
+import app from "firebase/app";
 import * as geolib from "geolib";
 import { AsyncStorage } from "react-native";
 
@@ -17,7 +18,9 @@ const METERS_TO_MILES = 1609.344;
 
 export default class Firebase {
   constructor() {
-    app.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      app.initializeApp(firebaseConfig);
+    }
     this.auth = app.auth();
     this.db = app.database();
   }
@@ -94,7 +97,6 @@ export default class Firebase {
     const usersArray = Object.keys(usersObj).map(key => usersObj[key]);
     return usersArray.filter(user => {
       if (user.id === otherUser.id || !user.location || !user.location.coords) {
-        console.log("Here");
         return false;
       }
       const distanceObjUser = {
@@ -105,8 +107,9 @@ export default class Firebase {
         latitude: otherUser.location.coords.latitude,
         longitude: otherUser.location.coords.longitude
       };
-      console.log("Distance:");
-      console.log(geolib.getDistance(distanceObjUser, distanceObjOtherUser));
+      console.log(
+        "Distance: " + geolib.getDistance(distanceObjUser, distanceObjOtherUser)
+      );
       return (
         user.gender == gender &&
         geolib.getDistance(distanceObjUser, distanceObjOtherUser) <
@@ -121,12 +124,9 @@ export default class Firebase {
       .child(uid)
       .child("swiped");
 
-  userSwiped = (uid, sid) =>
-    this.db
-      .ref("users")
-      .child(uid)
-      .child("swiped")
-      .child(sid);
+  userSwiped = (uid, sid) => this.db.ref(`users/${uid}/swiped/${sid}`);
+
+  conversation = uid => this.db.ref(`conversation`);
 
   getCurrentUser = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -140,7 +140,7 @@ export default class Firebase {
   };
 
   /**
-   * Gets all messages. Includes ID of messages. 
+   * Gets all messages. Includes ID of messages.
    * @return {Array} An Array of message Objects, which look like:
    * {
    *   content: 'something',
@@ -152,7 +152,7 @@ export default class Firebase {
    */
   getAllMessages = () => {
     const messagesRef = this.messages();
-    return messagesRef.once('value').then((snapshot) => {
+    return messagesRef.once("value").then(snapshot => {
       const snapVal = snapshot.val();
       return Object.keys(snapVal).map(msgId => ({
         ...snapVal[msgId],
@@ -161,25 +161,23 @@ export default class Firebase {
     });
   };
 
-  uploadMessage = () => {
-    
-  };
+  uploadMessage = () => {};
 
   /**
    * Filters an array of messages, taking out messages not belonging to the specified
    *   conversation.
    * @param  {String} id       ID of the conversation to filter for messages
-   * @param  {Array} messages Array of messages; see getAllMessages for message structure. 
+   * @param  {Array} messages Array of messages; see getAllMessages for message structure.
    */
   filterMessages = (id, messages) => {
-    return messages.filter(msg => msg.conversation === id)
+    return messages.filter(msg => msg.conversation === id);
   };
 
   /**
    * Sorts messages by their timestamp. Returns a NEW ARRAY; does not mutate input.
    * @param  {Array} messages Array of messages; see getAllMessages for message structure.
    */
-  sortMessages = (messages) => {
+  sortMessages = messages => {
     const toSort = [...messages];
     toSort.sort((a, b) => {
       return a.timestamp - b.timestamp;

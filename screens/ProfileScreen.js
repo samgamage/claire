@@ -18,7 +18,7 @@ class ProfileScreen extends React.Component {
   async componentDidMount() {
     const uid = await this.props.firebase.getCurrentUser();
     console.log(uid);
-    this.props.firebase.user(uid).on("value", snapshot => {
+    this.props.firebase.user(uid).once("value", snapshot => {
       const user = snapshot.val();
       this.setState({ isLoading: false, user });
     });

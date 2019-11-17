@@ -1,6 +1,6 @@
+import lodash from "lodash";
 import React, { Component } from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import { Platform } from 'react-native'
+import { Platform, StyleSheet, Text, View } from "react-native";
 import Swiper from "react-native-deck-swiper";
 
 // demo purposes only
@@ -36,16 +36,34 @@ export default class UserSwiper extends Component {
     );
   };
 
-  onSwiped = type => {
-    console.log(`on swiped ${type}`);
-  };
-
-  onSwipedRight = (card, index) => {
-    console.log("Swiped right");
-  };
-
-  onSwipedLeft = (card, index) => {
-    console.log("Swiped left");
+  onSwiped = async (type, index) => {
+    if (type === 1) {
+      const uid = this.props.firebase.auth.currentUser.uid;
+      const cardUser = this.state.cards[index];
+      const swipedRef = this.props.firebase.userSwiped(uid, cardUser.id);
+      await swipedRef.set({ id: cardUser.id });
+      if (cardUser.swiped) {
+        console.log(
+          lodash.findIndex(
+            Object.keys(cardUser.swiped).map(key => cardUser.swiped[key].id),
+            sid => sid === uid
+          )
+        );
+        const matched =
+          lodash.findIndex(
+            Object.keys(cardUser.swiped).map(key => cardUser.swiped[key].id),
+            sid => sid === uid
+          ) !== -1;
+        if (matched) {
+          const conversation = {
+            id: uuid.v4(),
+            user1: uid,
+            user2: cardUser.id
+          };
+          await this.props.firebase.conversation(uid).set(conversation);
+        }
+      }
+    }
   };
 
   onSwipedAllCards = () => {
@@ -59,8 +77,6 @@ export default class UserSwiper extends Component {
   };
 
   render() {
-    console.log(this.state.swipedAllCards);
-    console.log(this.state.cards);
     return (
       <View style={styles.container}>
         {!this.state.swipedAllCards && (
@@ -68,16 +84,14 @@ export default class UserSwiper extends Component {
             ref={swiper => {
               this.swiper = swiper;
             }}
-            useViewOverflow={Platform.OS === 'ios'}
-            onSwipedLeft={this.onSwipedLeft}
-            onSwipedRight={this.onSwipedRight}
+            useViewOverflow={Platform.OS === "ios"}
+            onSwipedLeft={index => this.onSwiped(0, index)}
+            onSwipedRight={index => this.onSwiped(1, index)}
             onTapCard={this.swipeLeft}
             cards={this.state.cards}
             cardIndex={this.state.cardIndex}
-            cardVerticalMargin={80}
             renderCard={this.renderCard}
             onSwipedAll={this.onSwipedAllCards}
-            infinite={false}
             overlayLabels={{
               left: {
                 title: "NOPE",
@@ -121,7 +135,6 @@ export default class UserSwiper extends Component {
             swipeBackCard
           />
         )}
-        {this.state.swipedAllCards && <Text>No more</Text>}
         {/* <Button onPress={() => this.swiper.swipeBack()} title="Swipe Back" /> */}
       </View>
     );

@@ -29,7 +29,7 @@ class Picture extends React.Component {
     // the scale for blurRadius changes depending on the OS
     let min;
     let max;
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       max = 130;
       min = 0;
     } else {
@@ -344,18 +344,31 @@ class Messages extends React.Component {
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
-      if ((conversations == null || conversations.length === 0) && shouldRender == true) {
+      if (
+        (conversations == null || conversations.length === 0) &&
+        shouldRender == true
+      ) {
         this.setState({
           shouldRender: false,
           loading: false,
           conversationId: null
         });
-      } else if (conversations && conversations.length > 0 && shouldRender == false) {
+      } else if (
+        conversations &&
+        conversations.length > 0 &&
+        shouldRender == false
+      ) {
         const thisConversationId = conversations[0].id;
         this.setState({
           shouldRender: true,
           loading: false,
           conversationId: thisConversationId
+        });
+      } else {
+        this.setState({
+          shouldRender: false,
+          loading: false,
+          conversationId: null
         });
       }
     });
@@ -371,7 +384,7 @@ class Messages extends React.Component {
       ourView = <Loading />;
     } else if (shouldRender === false) {
       ourView = (
-        <View style={style.alignCenter}>
+        <View style={styles.alignCenter}>
           <Text style={{ fontFamily: "avenir-next-regular" }}>
             You haven't matched with anyone yet. Go meet some people!
           </Text>

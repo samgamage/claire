@@ -354,13 +354,13 @@ class Messages extends React.Component {
           conversationId: null
         });
       } else {
-        const thisConversationId = conversations.filter(
+        const [thisConversation] = conversations.filter(
           conversation => conversation.id === user.conversation
         );
         this.setState({
           shouldRender: true,
           loading: false,
-          conversationId: thisConversationId
+          conversationId: thisConversation.id
         });
       }
       // if (

@@ -8,7 +8,8 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View
+  View,
+  Platform
 } from "react-native";
 import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
@@ -24,11 +25,22 @@ class Picture extends React.Component {
   render() {
     const { sentiment, url } = this.props;
 
-    // sentiment from -1 to 1 scales linearly with blur amount from 1 to 10
+    // the scale for blurRadius changes depending on the OS
+    let min;
+    let max;
+    if (Platform.OS === 'ios') {
+      max = 100;
+      min = 0;
+    } else {
+      max = 10;
+      min = 0;
+    }   
+
+    // sentiment from -1 to 1 scales linearly with blur amount from min to max
     // first add 1 to sentiment to get x where 0 <= x < 2
-    // then multiply by 6 to get y where 0 <= y < 10
-    // finally, subtract from 10 to invert for blurRadius
-    const thisBlurAmount = sentiment == null ? 10 : 10 - (sentiment + 1) * 5;
+    // then multiply by max to get y where 0 <= y < max
+    // finally, subtract from max to invert for blurRadius
+    const thisBlurAmount = sentiment == null ? max : max - (sentiment + 1) * (max / 2);
 
     return (
       <Layout style={{ flex: 0.6 }}>

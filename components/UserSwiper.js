@@ -88,6 +88,8 @@ export default class UserSwiper extends Component {
             sid => sid === uid
           ) !== -1;
 
+        console.log("Matched: ");
+        console.log(matched);
         // MATCHED
         if (matched) {
           const conversation = {

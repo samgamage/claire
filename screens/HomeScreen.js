@@ -5,6 +5,7 @@ import React from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Spinner, Text } from "react-native-ui-kitten";
+import UserSwiper from "../components/UserSwiper";
 import { withFirebase } from "../firebase/FirebaseContext";
 
 class Home extends React.Component {
@@ -27,8 +28,7 @@ class Home extends React.Component {
       user.genderWant,
       3218.69
     );
-    console.log(users);
-    this.setState({ user, isLoading: false });
+    this.setState({ user, users, isLoading: false });
   }
 
   _getLocationAsync = async uid => {
@@ -43,8 +43,6 @@ class Home extends React.Component {
 
     let location = await Location.getCurrentPositionAsync({});
     await this.props.firebase.user(uid).update({ location });
-    this.setState({ isLoading: false });
-    return location;
   };
 
   render() {
@@ -66,7 +64,7 @@ class Home extends React.Component {
 
     return (
       <View>
-        <Text>Home</Text>
+        <UserSwiper users={this.state.users} />
       </View>
     );
   }

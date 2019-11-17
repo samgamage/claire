@@ -103,8 +103,7 @@ export default class Firebase {
         latitude: otherUser.location.coords.latitude,
         longitude: otherUser.location.coords.longitude
       };
-      console.log(distanceObjOtherUser);
-      console.log(distanceObjUser);
+      console.log("Distance:");
       console.log(geolib.getDistance(distanceObjUser, distanceObjOtherUser));
       return (
         user.gender == gender &&
@@ -113,6 +112,19 @@ export default class Firebase {
       );
     });
   };
+
+  usersSwiped = uid =>
+    this.db
+      .ref("users")
+      .child(uid)
+      .child("swiped");
+
+  userSwiped = (uid, sid) =>
+    this.db
+      .ref("users")
+      .child(uid)
+      .child("swiped")
+      .child(sid);
 
   messages = () => this.db.ref("messages");
 

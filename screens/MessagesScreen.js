@@ -344,33 +344,47 @@ class Messages extends React.Component {
 
     getConversationsListen(conversations => {
       const { shouldRender } = this.state;
-      if (
-        (conversations == null || conversations.length === 0) &&
-        shouldRender == true
-      ) {
+      if (conversations == null || conversations.length === 0) {
         this.setState({
           shouldRender: false,
           loading: false,
           conversationId: null
         });
-      } else if (
-        conversations &&
-        conversations.length > 0 &&
-        shouldRender == false
-      ) {
+      } else {
         const thisConversationId = conversations[0].id;
         this.setState({
           shouldRender: true,
           loading: false,
           conversationId: thisConversationId
         });
-      } else {
-        this.setState({
-          shouldRender: false,
-          loading: false,
-          conversationId: null
-        });
       }
+      // if (
+      //   (conversations == null || conversations.length === 0) &&
+      //   shouldRender == true
+      // ) {
+      //   this.setState({
+      //     shouldRender: false,
+      //     loading: false,
+      //     conversationId: null
+      //   });
+      // } else if (
+      //   conversations &&
+      //   conversations.length > 0 &&
+      //   shouldRender == false
+      // ) {
+      //   const thisConversationId = conversations[0].id;
+      //   this.setState({
+      //     shouldRender: true,
+      //     loading: false,
+      //     conversationId: thisConversationId
+      //   });
+      // } else {
+      //   this.setState({
+      //     shouldRender: false,
+      //     loading: false,
+      //     conversationId: null
+      //   });
+      // }
     });
   }
 

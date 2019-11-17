@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
 const WrappedComponent = withFirebase(ProfileScreen);
 
 WrappedComponent.navigationOptions = ({ navigation }) => ({
+  headerTitle: <Text style={{ fontFamily: "avenir-next-bold" }}>Profile</Text>,
   headerLeft: (
     <TouchableOpacity
       onPress={() => {

@@ -1,17 +1,18 @@
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 import {
-  Button,
   FlatList,
-  View,
+  Image,
+  KeyboardAvoidingView,
   ScrollView,
+  StyleSheet,
   TextInput,
-  Image
+  View
 } from "react-native";
-import { Text } from "react-native-ui-kitten";
-import Loading from '../components/Loading';
-import { withFirebase } from "../firebase/FirebaseContext";
+import { Button, Layout, Spinner, Text } from "react-native-ui-kitten";
 import { getSentiment } from "../api/api";
+import Loading from "../components/Loading";
+import { withFirebase } from "../firebase/FirebaseContext";
 
 // takes props 'url', 'id' and 'sentiment'
 class Picture extends React.Component {
@@ -26,26 +27,24 @@ class Picture extends React.Component {
     // first add 1 to sentiment to get x where 0 < x < 2
     // then multiply by 5 to get y where 0 < y < 10
     // finally, subtract from 10 to invert for blurRadius
-    const thisBlurAmount = sentiment
-      ? 10 - ((sentiment + 1) * 5)
-      : 10;
+    const thisBlurAmount = sentiment ? 10 - (sentiment + 1) * 5 : 10;
 
     return (
-      <View>
-        { url
-          ? <Image
+      <Layout style={{ flex: 0.3 }}>
+        {url ? (
+          <Image
             source={{
               uri: url
             }}
             style={{
-              width: 150,
-              height: 150
+              width: "100%",
+              height: "100%"
             }}
             blurRadius={thisBlurAmount}
-            resizeMode='cover'
+            resizeMode="cover"
           />
-          : null }
-      </View>
+        ) : null}
+      </Layout>
     );
   }
 }
@@ -58,15 +57,10 @@ class MessageRow extends React.Component {
   render() {
     const { userIsSender, text } = this.props; // use this later.
     return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <Text>
-          { userIsSender
-            ? `You said ${text}`
-            : `They said ${text}`
-          }
-        </Text>
+      <View style={{ justifyContent: "center" }}>
+        <Text>{userIsSender ? `You said ${text}` : `They said ${text}`}</Text>
       </View>
-    )
+    );
   }
 }
 
@@ -75,7 +69,7 @@ class SendMessage extends React.Component {
     super(props);
 
     this.state = {
-      message: ''
+      message: ""
     };
 
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -93,37 +87,31 @@ class SendMessage extends React.Component {
     const { conversationId, firebase } = this.props;
 
     // ignore empty messages
-    if (message.trim() == '') {
+    if (message.trim() == "") {
       return;
     }
 
-    await firebase.uploadMessage(
-      message,
-      conversationId
-    );
+    await firebase.uploadMessage(message, conversationId);
 
     // clear user input
     this.setState({
-      message: ''
+      message: ""
     });
   }
 
   render() {
     const { message } = this.state;
     return (
-      <View>
+      <View style={styles.messageBox}>
         <TextInput
-          style={{height: 40}}
+          style={{ height: 40, flexGrow: 1 }}
           placeholder="Type a message..."
           value={message}
-          onChangeText={(text) => this.handleChangeText(text)}
+          onChangeText={text => this.handleChangeText(text)}
         />
-        <Button
-          onPress={this.handleSendMessage}
-          title="Send Message"
-        />
+        <Button onPress={this.handleSendMessage}>Send</Button>
       </View>
-    )    
+    );
   }
 }
 
@@ -133,14 +121,16 @@ class MessagesContent extends React.Component {
 
     this.state = {
       sentiment: -1,
-      otherPersonPicUrl: '',
-      otherPersonId: '',
-      
+      otherPersonPicUrl: "",
+      otherPersonId: "",
+
       loading: true,
-      messages: [],
+      messages: []
     };
 
-    this.updateConversationSentiment = this.updateConversationSentiment.bind(this);
+    this.updateConversationSentiment = this.updateConversationSentiment.bind(
+      this
+    );
   }
 
   async componentDidMount() {
@@ -155,26 +145,27 @@ class MessagesContent extends React.Component {
     } = firebase;
 
     // updates messages picture when changed in db; runs once when component mounts
-    getAllMessagesListen((messagesToFilter) => {
+    getAllMessagesListen(messagesToFilter => {
       // filters out messages that don't belong to this conversation, and sorts messages by their timestamp
-      let messages = sortMessages(filterMessages(
-        conversationId,
-        messagesToFilter
-      ));
+      let messages = sortMessages(
+        filterMessages(conversationId, messagesToFilter)
+      );
 
-
-      this.setState({
-        loading: false,
-        messages
-      }, () => {
-        // updates conversation sentiment after getting messages.
-        // though this is asynchronous, we don't necessarily have to wait/block for it.
-        this.updateConversationSentiment();
-      });
+      this.setState(
+        {
+          loading: false,
+          messages
+        },
+        () => {
+          // updates conversation sentiment after getting messages.
+          // though this is asynchronous, we don't necessarily have to wait/block for it.
+          this.updateConversationSentiment();
+        }
+      );
     });
 
     // updates profile picture when conversation (sentiment) changes; run once when component mounts
-    getConversationListen(conversationId, (conversationObj) => {
+    getConversationListen(conversationId, conversationObj => {
       if (!conversationObj || !conversationObj.sentiment) {
         return;
       }
@@ -199,16 +190,19 @@ class MessagesContent extends React.Component {
   // update profile picture if necessary
   async componentDidUpdate(prevProps, prevState) {
     if (this.state.otherPersonId !== prevState.otherPersonId) {
-      const otherPersonPicUrl = await this.props.firebase.getProfilePic(this.state.otherPersonId);
+      const otherPersonPicUrl = await this.props.firebase.getProfilePic(
+        this.state.otherPersonId
+      );
       this.setState({ otherPersonPicUrl });
     }
   }
 
   // detach listeners
   componentWillUnmount() {
-    const { conversationId } = this.props;
-    this.detachAllMessagesListen();
-    this.detachConversationListen(conversationId);
+    const { conversationId, firebase } = this.props;
+    const { detachAllMessagesListen, detachConversationListen } = firebase;
+    detachAllMessagesListen();
+    detachConversationListen(conversationId);
   }
 
   updateConversationSentiment() {
@@ -216,11 +210,10 @@ class MessagesContent extends React.Component {
     const { conversationId, firebase } = this.props;
     const { updateSentiment } = firebase;
 
-
     // recalculates sentiment, then updates it in the DB
-    getSentiment(messages).then((res) => {
+    getSentiment(messages).then(res => {
       const { ok, sentiment } = res;
-      
+
       let score;
       if (res == null || sentiment == null || sentiment === 0) {
         score = -1;
@@ -229,55 +222,48 @@ class MessagesContent extends React.Component {
         // let maybeDoSomethingWithThis = sentiment.magnitude;
       }
 
-
       return updateSentiment(conversationId, score);
     });
   }
 
   render() {
-    const {
-      loading,
-      messages,
-      sentiment,
-      otherPersonPicUrl
-    } = this.state;
+    const { loading, messages, sentiment, otherPersonPicUrl } = this.state;
     const { firebase, conversationId } = this.props;
     const { uid } = firebase.auth.currentUser;
 
-    let ourView;
     if (loading) {
-      ourView = <Loading />;
-    } else {
-      ourView = <View>
-        <Picture
-          sentiment={sentiment}
-          url={otherPersonPicUrl}
-        />
-        <ScrollView>
-          <View style={{ flex: 1 }}>
-            <FlatList
-              style={{ flex: 1 }}
-              data={messages}
-              renderItem={({ item }) => <MessageRow text={item.content} userIsSender={uid == item.sender} />}
-              keyExtractor={item => item.id}
-            />
-          </View>
-        </ScrollView>
-        <SendMessage
-          conversationId={conversationId}
-          firebase={firebase}
-        />
-      </View>
+      return (
+        <Layout style={styles.alignCenter}>
+          <Spinner />
+        </Layout>
+      );
     }
 
     return (
-      <View>
-        {ourView}
-      </View>
+      <KeyboardAvoidingView
+        behavior="padding"
+        keyboardVerticalOffset={65}
+        style={{ flex: 1, marginBottom: 49 }}
+      >
+        <Picture sentiment={sentiment} url={otherPersonPicUrl} />
+        <ScrollView style={{ flex: 0.7 }}>
+          <FlatList
+            style={{ flex: 1 }}
+            data={messages}
+            renderItem={({ item }) => (
+              <MessageRow
+                text={item.content}
+                userIsSender={uid == item.sender}
+              />
+            )}
+            keyExtractor={item => item.id}
+          />
+        </ScrollView>
+        <SendMessage conversationId={conversationId} firebase={firebase} />
+      </KeyboardAvoidingView>
     );
   }
 }
-
 
 // contains logic for whether we should even render messages content
 class Messages extends React.Component {
@@ -294,13 +280,14 @@ class Messages extends React.Component {
   async componentDidMount() {
     const { shouldRender } = this.state;
     const { firebase } = this.props;
-    const {
-      getConversationsListen
-    } = firebase;
+    const { getConversationsListen } = firebase;
 
-    getConversationsListen((conversations) => {
-      const { shouldRender } = this.state
-      if (conversations == null || (conversations.length === 0 && shouldRender == true)) {
+    getConversationsListen(conversations => {
+      const { shouldRender } = this.state;
+      if (
+        conversations == null ||
+        (conversations.length === 0 && shouldRender == true)
+      ) {
         this.setState({
           shouldRender: false,
           loading: false,
@@ -318,12 +305,7 @@ class Messages extends React.Component {
   }
 
   render() {
-
-    const {
-      shouldRender,
-      loading,
-      conversationId
-    } = this.state;
+    const { shouldRender, loading, conversationId } = this.state;
     const { firebase } = this.props;
     // const { uid } = firebase.auth.currentUser;
 
@@ -331,21 +313,18 @@ class Messages extends React.Component {
     if (loading) {
       ourView = <Loading />;
     } else if (shouldRender === false) {
-      ourView = <View>
-        <Text>You haven't matched with anyone yet. Go meet some people!</Text>
-      </View>
+      ourView = (
+        <View>
+          <Text>You haven't matched with anyone yet. Go meet some people!</Text>
+        </View>
+      );
     } else {
-      ourView = <MessagesContent
-        conversationId={conversationId}
-        firebase={firebase}
-      />
+      ourView = (
+        <MessagesContent conversationId={conversationId} firebase={firebase} />
+      );
     }
 
-    return (
-      <View>
-        {ourView}
-      </View>
-    );
+    return <View style={{ flex: 1 }}>{ourView}</View>;
   }
 }
 
@@ -359,5 +338,15 @@ MessageRow.propTypes = {
 //   conversationId: PropTypes.String.isRequired,
 //   firebase: PropTypes.object
 // };
+
+const styles = StyleSheet.create({
+  alignCenter: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  messageBox: {
+    flexDirection: "row"
+  }
+});
 
 export default withFirebase(Messages);

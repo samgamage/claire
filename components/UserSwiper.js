@@ -1,28 +1,30 @@
 import { Feather } from "@expo/vector-icons";
 import lodash from "lodash";
 import React, { Component } from "react";
-import {
-  Dimensions,
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Dimensions, Image, Platform, StyleSheet, Text } from "react-native";
 import Swiper from "react-native-deck-swiper";
 import { Button, Icon, Layout } from "react-native-ui-kitten";
 import uuid from "uuid";
 
-// demo purposes only
-function* range(start, end) {
-  for (let i = start; i <= end; i++) {
-    yield i;
-  }
-}
+const LikeIcon = style => (
+  <Icon
+    {...style}
+    width={32}
+    height={32}
+    animation="pulse"
+    name="heart-outline"
+  />
+);
 
-const LikeIcon = style => <Icon {...style} name="heart-outline" />;
-
-const NotLikeIcon = style => <Icon {...style} name="close-outline" />;
+const NotLikeIcon = style => (
+  <Icon
+    {...style}
+    width={32}
+    height={32}
+    animation="shake"
+    name="close-outline"
+  />
+);
 
 export default class UserSwiper extends Component {
   constructor(props) {
@@ -31,22 +33,36 @@ export default class UserSwiper extends Component {
       cards: this.props.users,
       swipedAllCards: false,
       swipeDirection: "",
-      cardIndex: 0
+      cardIndex: 0,
+      loading: true
     };
   }
 
-  renderCard = (user, index) => {
+  renderCard = user => {
     return (
-      <View style={styles.card}>
+      <Layout style={styles.card}>
         {user && (
           <React.Fragment>
-            <Text style={styles.text}>
-              {user.name} - {user.age}
+            <Text style={{ ...styles.textBold, fontSize: 28 }}>
+              {user.name}
             </Text>
-            <Text>{user.bio}</Text>
+            <Layout
+              style={{
+                alignItems: "center",
+                flexDirection: "row"
+              }}
+            >
+              <Text style={{ ...styles.text, marginRight: 4, fontSize: 21 }}>
+                Age
+              </Text>
+              <Text style={{ ...styles.textBold, fontSize: 22 }}>
+                {user.age}
+              </Text>
+            </Layout>
+            <Text style={styles.text}>{user.bio}</Text>
           </React.Fragment>
         )}
-      </View>
+      </Layout>
     );
   };
 
@@ -112,7 +128,8 @@ export default class UserSwiper extends Component {
             renderCard={this.renderCard}
             onSwipedAll={this.onSwipedAllCards}
             backgroundColor="#fff"
-            cardVerticalMargin={20}
+            stackSize={3}
+            cardVerticalMargin={40}
             overlayLabels={{
               left: {
                 title: "NOPE",
@@ -167,12 +184,16 @@ export default class UserSwiper extends Component {
           <Layout
             style={{
               position: "absolute",
-              top: Dimensions.get("screen").height / 2 + 20,
+              top:
+                Dimensions.get("screen").height -
+                49 -
+                Dimensions.get("screen").height / 3,
               margin: 20,
               flex: 1,
               width: Dimensions.get("screen").width - 40,
               flexDirection: "row",
-              justifyContent: "space-around"
+              justifyContent: "space-around",
+              backgroundColor: "transparent"
             }}
           >
             <Button
@@ -212,9 +233,9 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   card: {
-    borderRadius: 4,
+    borderRadius: 8,
     padding: 16,
-    borderWidth: 2,
+    borderWidth: 1,
     flex: 1,
     maxHeight: Dimensions.get("screen").height / 2,
     borderColor: "#E8E8E8",
@@ -222,8 +243,9 @@ const styles = StyleSheet.create({
     backgroundColor: "white"
   },
   text: {
-    textAlign: "center",
-    fontSize: 50,
-    backgroundColor: "transparent"
+    fontFamily: "avenir-next-regular"
+  },
+  textBold: {
+    fontFamily: "avenir-next-bold"
   }
 });

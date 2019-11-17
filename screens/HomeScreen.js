@@ -63,7 +63,7 @@ class Home extends React.Component {
     }
 
     return (
-      <View>
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
         <UserSwiper firebase={this.props.firebase} users={this.state.users} />
       </View>
     );

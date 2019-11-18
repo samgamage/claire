@@ -131,6 +131,8 @@ export default class UserSwiper extends Component {
       } else {
         this.setState({ isSwiping: false, isSwipingDisabled: false });
       }
+    } else {
+      this.setState({ isSwiping: false, isSwipingDisabled: false });
     }
   };
 

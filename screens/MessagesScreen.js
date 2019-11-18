@@ -500,4 +500,10 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withFirebase(Messages);
+const WrappedComponent = withFirebase(Messages);
+
+WrappedComponent.navigationOptions = {
+  header: null
+};
+
+export default WrappedComponent;

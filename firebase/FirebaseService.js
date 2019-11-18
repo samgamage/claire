@@ -3,24 +3,14 @@ import app from "firebase/app";
 import * as geolib from "geolib";
 import { AsyncStorage } from "react-native";
 import uuid from "uuid";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCzgMTmPJXZiCdySEwT1xyiN2ykJlZfdxY",
-  authDomain: "flame-65b54.firebaseapp.com",
-  databaseURL: "https://flame-65b54.firebaseio.com",
-  projectId: "flame-65b54",
-  storageBucket: "flame-65b54.appspot.com",
-  messagingSenderId: "131750955465",
-  appId: "1:131750955465:web:e3be0337080ee800ea8018",
-  measurementId: "G-Y1CYEZ3SE2"
-};
+import config from "../config.json";
 
 const METERS_TO_MILES = 1609.344;
 
 export default class Firebase {
   constructor() {
     if (!firebase.apps.length) {
-      app.initializeApp(firebaseConfig);
+      app.initializeApp(config);
     }
     this.auth = app.auth();
     this.db = app.database();

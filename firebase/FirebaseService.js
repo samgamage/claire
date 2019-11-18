@@ -100,13 +100,15 @@ export default class Firebase {
     const usersObj = usersSnapshot.val();
     const usersArray = Object.keys(usersObj).map(key => usersObj[key]);
     return usersArray.filter(otherUser => {
+      console.log("Other user:");
+      console.log(otherUser);
       if (
         otherUser.id === user.id ||
         !otherUser.location ||
         !otherUser.location.coords ||
         (user.hasOwnProperty("seen") &&
           user.seen.hasOwnProperty(otherUser.id)) ||
-        user.hasOwnProperty("conversation")
+        otherUser.hasOwnProperty("conversation")
       ) {
         return false;
       }

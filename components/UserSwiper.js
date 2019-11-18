@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import lodash from "lodash";
+import { Toast } from "native-base";
 import React, { Component } from "react";
 import { Dimensions, Image, Platform, StyleSheet, Text } from "react-native";
 import Swiper from "react-native-deck-swiper";
@@ -39,49 +40,46 @@ export default class UserSwiper extends Component {
     };
   }
 
-  async componentDidMount() {
-    const uid = this.props.firebase.auth.currentUser.uid;
-    const userRef = this.props.firebase.user(uid);
-    const userSnapshot = await userRef.once("value");
-    const user = userSnapshot.val();
+  componentDidMount() {
+    const user = this.props.user;
     let isSwipingDisabled = false;
     if (user.hasOwnProperty("conversation")) {
       isSwipingDisabled = true;
+      Toast.show({
+        text: `Swiping will be disabled until your matched conversation has finished.`,
+        buttonText: "Okay",
+        duration: 3000
+      });
     }
-    console.log(isSwipingDisabled);
     this.setState({ user, loading: false, isSwipingDisabled });
   }
 
   renderCard = user => {
+    console.log("Card user:");
+    console.log(user);
     return (
       <Layout style={styles.card}>
-        {user && (
-          <React.Fragment>
-            <Text style={{ ...styles.textBold, fontSize: 28 }}>
-              {user.name}
+        <React.Fragment>
+          <Text style={{ ...styles.textBold, fontSize: 28 }}>{user.name}</Text>
+          <Layout
+            style={{
+              alignItems: "center",
+              flexDirection: "row"
+            }}
+          >
+            <Text style={{ ...styles.text, marginRight: 4, fontSize: 21 }}>
+              Age
             </Text>
-            <Layout
-              style={{
-                alignItems: "center",
-                flexDirection: "row"
-              }}
-            >
-              <Text style={{ ...styles.text, marginRight: 4, fontSize: 21 }}>
-                Age
-              </Text>
-              <Text style={{ ...styles.textBold, fontSize: 22 }}>
-                {user.age}
-              </Text>
-            </Layout>
-            <Text style={styles.text}>{user.bio}</Text>
-          </React.Fragment>
-        )}
+            <Text style={{ ...styles.textBold, fontSize: 22 }}>{user.age}</Text>
+          </Layout>
+          <Text style={styles.text}>{user.bio}</Text>
+        </React.Fragment>
       </Layout>
     );
   };
 
   onSwiped = async (type, index) => {
-    this.setState({ isSwiping: true });
+    this.setState({ isSwiping: true, isSwipingDisabled: true });
     const uid = this.props.firebase.auth.currentUser.uid;
     const cardUserId = this.props.users[index].id;
     await this.props.firebase.userSeen(uid, cardUserId).set({ id: cardUserId });
@@ -91,9 +89,7 @@ export default class UserSwiper extends Component {
     if (type === 1) {
       const swipedRef = this.props.firebase.userSwiped(uid, cardUser.id);
       await swipedRef.set({ id: cardUser.id });
-      console.log("cardUser.swiped:");
-      console.log(cardUser.swiped);
-      if (cardUser.swiped) {
+      if (cardUser.hasOwnProperty("swiped")) {
         console.log(
           lodash.findIndex(
             Object.keys(cardUser.swiped).map(key => cardUser.swiped[key].id),
@@ -122,12 +118,18 @@ export default class UserSwiper extends Component {
           await this.props.firebase
             .userConversation(cardUser.id)
             .set(conversation.id);
+          Toast.show({
+            text: `Matched! You found a match with ${cardUser.name}`,
+            buttonText: "Okay",
+            type: "success",
+            duration: 3000
+          });
           this.setState({ isSwipingDisabled: true, isSwiping: false });
         } else {
-          this.setState({ isSwiping: false });
+          this.setState({ isSwiping: false, isSwipingDisabled: false });
         }
       } else {
-        this.setState({ isSwiping: false });
+        this.setState({ isSwiping: false, isSwipingDisabled: false });
       }
     }
   };
@@ -168,9 +170,7 @@ export default class UserSwiper extends Component {
             onSwipedAll={this.onSwipedAllCards}
             backgroundColor="#fff"
             verticalSwipe={false}
-            horzionalSwipe={
-              !this.state.isSwiping || !this.state.isSwipingDisabled
-            }
+            horizontalSwipe={!this.state.isSwipingDisabled}
             stackSize={3}
             cardVerticalMargin={40}
             overlayLabels={{
@@ -241,6 +241,7 @@ export default class UserSwiper extends Component {
           >
             <Button
               icon={LikeIcon}
+              disabled={this.state.isSwipingDisabled}
               onPress={() => {
                 this.onSwiped("right", this.state.cardIndex);
                 this.swiper.swipeRight();
@@ -250,6 +251,7 @@ export default class UserSwiper extends Component {
             </Button>
             <Button
               icon={NotLikeIcon}
+              disabled={this.state.isSwipingDisabled}
               onPress={() => {
                 this.onSwiped("left", this.state.cardIndex);
                 this.swiper.swipeLeft();

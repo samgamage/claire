@@ -20,16 +20,22 @@ class Home extends React.Component {
     const uid = await this.props.firebase.getCurrentUser();
     this._getLocationAsync(uid);
     const userRef = this.props.firebase.user(uid);
-    const userSnapshot = await userRef.once("value");
-    const user = userSnapshot.val();
+    await userRef.once("value", async snapshot => {
+      const user = snapshot.val();
 
-    const users = await this.props.firebase.getAllUsersWithGenderAndDistanceAway(
-      user,
-      user.genderWant,
-      3218.69 // 2 miles in meters,
-    );
-    this.setState({ user, users, isLoading: false });
+      const users = await this.props.firebase.getAllUsersWithGenderAndDistanceAway(
+        user,
+        user.genderWant,
+        3218.69 // 2 miles in meters,
+      );
+      console.log(users);
+      this.setState({ user, users, isLoading: false });
+    });
   }
+
+  // componentWillUnmount() {
+  //   this.props.firebase.user(this.state.user.id).off();
+  // }
 
   _getLocationAsync = async uid => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -64,7 +70,11 @@ class Home extends React.Component {
 
     return (
       <Layout style={{ flex: 1, backgroundColor: "#fff" }}>
-        <UserSwiper firebase={this.props.firebase} users={this.state.users} />
+        <UserSwiper
+          user={this.state.user}
+          firebase={this.props.firebase}
+          users={this.state.users}
+        />
       </Layout>
     );
   }

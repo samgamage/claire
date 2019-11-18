@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import React from "react";
-import { SafeAreaView } from "react-native";
+import { KeyboardAvoidingView } from "react-native";
 import { Button, Text } from "react-native-ui-kitten";
 import styled from "styled-components";
 import * as Yup from "yup";
@@ -25,10 +25,17 @@ class LoginScreen extends React.Component {
 
   render() {
     return (
-      <Container>
-        <RootContainer>
-          <SafeAreaView>
-            <Text>Claire</Text>
+      <KeyboardAvoidingView behavior="padding">
+        <Container>
+          <RootContainer>
+            <Text
+              style={{
+                fontFamily: "avenir-next-bold",
+                textAlign: "center"
+              }}
+            >
+              Claire
+            </Text>
             <Formik
               initialValues={{ email: "", password: "" }}
               onSubmit={values => this.onLogin(values.email, values.password)}
@@ -67,9 +74,9 @@ class LoginScreen extends React.Component {
                 </React.Fragment>
               )}
             </Formik>
-          </SafeAreaView>
-        </RootContainer>
-      </Container>
+          </RootContainer>
+        </Container>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -93,7 +100,7 @@ const Input = styled.TextInput`
 
 const RootContainer = styled.View`
   margin-top: 32px;
-  margin-bottom: 16px;
+  margin-bottom: 49px;
 `;
 
 const FieldItem = styled.View`

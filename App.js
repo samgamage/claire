@@ -1,8 +1,9 @@
 import { light, mapping } from "@eva-design/eva";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import * as Font from "expo-font";
+import { Root } from "native-base";
 import React from "react";
-import { YellowBox } from 'react-native';
+import { YellowBox } from "react-native";
 import { ApplicationProvider, IconRegistry } from "react-native-ui-kitten";
 import FirebaseContext from "./firebase/FirebaseContext";
 import Firebase from "./firebase/FirebaseService";
@@ -40,9 +41,7 @@ class App extends React.Component {
     });
 
     // hide the warning things
-    YellowBox.ignoreWarnings([
-      'Setting a timer'
-    ]);
+    YellowBox.ignoreWarnings(["Setting a timer"]);
 
     this.setState({ isLoading: false });
   }
@@ -55,7 +54,9 @@ class App extends React.Component {
       <FirebaseContext.Provider value={new Firebase()}>
         <IconRegistry icons={EvaIconsPack} />
         <ApplicationProvider mapping={mapping} theme={theme}>
-          <AppNavigator />
+          <Root>
+            <AppNavigator />
+          </Root>
         </ApplicationProvider>
       </FirebaseContext.Provider>
     );

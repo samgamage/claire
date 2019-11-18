@@ -142,9 +142,16 @@ class SendMessage extends React.Component {
         <Button
           ref={ref => (this.buttonRef = ref)}
           onPress={this.handleSendMessage}
+          style={{ marginRight: 8 }}
         >
           Send
         </Button>
+        <TouchableOpacity
+          onPress={this.props.leaveConversation}
+          style={{ marginRight: 8 }}
+        >
+          <Feather name="x" size={35} />
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -190,7 +197,6 @@ class MessagesContent extends React.Component {
 
       this.setState(
         {
-          loading: false,
           messages
         },
         () => {
@@ -202,7 +208,7 @@ class MessagesContent extends React.Component {
     });
 
     // updates profile picture when conversation (sentiment) changes; run once when component mounts
-    getConversationListen(conversationId, conversationObj => {
+    getConversationListen(conversationId, async conversationObj => {
       if (!conversationObj || conversationObj.sentiment == null) {
         return;
       }
@@ -217,9 +223,15 @@ class MessagesContent extends React.Component {
         otherPersonId = user1;
       }
 
-      this.setState({
-        sentiment,
+      const otherPersonPicUrl = await this.props.firebase.getProfilePic(
         otherPersonId
+      );
+
+      this.setState({
+        loading: false,
+        sentiment,
+        otherPersonId,
+        otherPersonPicUrl
       });
     });
   }
@@ -286,38 +298,42 @@ class MessagesContent extends React.Component {
     return (
       <KeyboardAvoidingView
         behavior="padding"
-        style={{ flex: 1, marginBottom: 59 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 65 : 80}
+        style={{ flex: 1, marginBottom: 49 }}
+        // keyboardVerticalOffset={Platform.OS === "ios" ? 65 : 80}
       >
         <Picture sentiment={sentiment} url={otherPersonPicUrl} />
         <ScrollView
           style={{
-            flex: 0.4,
-            borderColor: "gray",
-            borderTopWidth: 1,
-            borderBottomWidth: 1
+            flex: 0.4
           }}
           ref={ref => {
             this.messageList = ref;
             ref && ref.scrollToEnd();
           }}
         >
-          <FlatList
-            style={{ flex: 1 }}
-            data={messages}
-            renderItem={({ item }) => (
-              <MessageRow
-                text={item.content}
-                userIsSender={uid == item.sender}
-              />
-            )}
-            keyExtractor={item => item.id}
-          />
+          {messages.length > 0 ? (
+            <FlatList
+              style={{ flex: 1 }}
+              data={messages}
+              renderItem={({ item }) => (
+                <MessageRow
+                  text={item.content}
+                  userIsSender={uid == item.sender}
+                />
+              )}
+              keyExtractor={item => item.id}
+            />
+          ) : (
+            <Layout style={{ ...styles.alignCenter }}>
+              <Text>No messages, start typing to conversate!</Text>
+            </Layout>
+          )}
         </ScrollView>
         <SendMessage
           messageListRef={this.messageList}
           conversationId={conversationId}
           firebase={firebase}
+          leaveConversation={this.props.leaveConversation}
         />
       </KeyboardAvoidingView>
     );
@@ -353,14 +369,13 @@ class Messages extends React.Component {
           conversationId: null
         });
       } else {
-        console.log(conversations);
         const [thisConversation] = conversations.filter(
           conversation => conversation.id === user.conversation
         );
         this.setState({
           shouldRender: true,
           loading: false,
-          conversationId: thisConversation.id
+          conversationId: thisConversation ? thisConversation.id : null
         });
       }
       // if (
@@ -393,6 +408,10 @@ class Messages extends React.Component {
     });
   }
 
+  leaveConversation = () => {
+    this.props.navigation.navigate("LeaveConversation");
+  };
+
   render() {
     const { shouldRender, loading, conversationId } = this.state;
     const { firebase } = this.props;
@@ -401,17 +420,22 @@ class Messages extends React.Component {
     let ourView;
     if (loading) {
       ourView = <Loading />;
-    } else if (shouldRender === false) {
+    } else if (shouldRender === false || !conversationId) {
       ourView = (
-        <View style={styles.alignCenter}>
-          <Text style={{ fontFamily: "avenir-next-regular" }}>
+        <Layout style={styles.alignCenter}>
+          <Image source={require("../assets/social.png")} />
+          <Text style={{ fontFamily: "avenir-next-bold" }}>
             You haven't matched with anyone yet. Go meet some people!
           </Text>
-        </View>
+        </Layout>
       );
     } else {
       ourView = (
-        <MessagesContent conversationId={conversationId} firebase={firebase} />
+        <MessagesContent
+          leaveConversation={this.leaveConversation}
+          conversationId={conversationId}
+          firebase={firebase}
+        />
       );
     }
 
@@ -432,17 +456,26 @@ MessageRow.propTypes = {
 
 const styles = StyleSheet.create({
   alignCenter: {
+    flex: 1,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    padding: 8,
+    marginBottom: 49
   },
   messageBox: {
     flexDirection: "row",
-    height: 40
+    height: 40,
+    marginVertical: 4
   },
   messageInput: {
     height: 40,
     flexGrow: 1,
-    maxWidth: Dimensions.get("window").width - 75
+    paddingHorizontal: 8,
+    marginHorizontal: 8,
+    borderWidth: 1,
+    borderColor: "lightgray",
+    borderRadius: 20,
+    maxWidth: Dimensions.get("window").width - 145
   },
   rightMessage: {
     textAlign: "right",
@@ -467,18 +500,4 @@ const styles = StyleSheet.create({
   }
 });
 
-const WrappedComponent = withFirebase(Messages);
-
-WrappedComponent.navigationOptions = ({ navigation }) => ({
-  headerRight: (
-    <TouchableOpacity
-      onPress={() => {
-        navigation.navigate("LeaveConversation");
-      }}
-    >
-      <Feather name="x" size={24} style={{ marginRight: 16 }} />
-    </TouchableOpacity>
-  )
-});
-
-export default WrappedComponent;
+export default withFirebase(Messages);

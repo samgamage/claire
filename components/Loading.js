@@ -1,23 +1,19 @@
 import React from "react";
+import { Spinner } from "react-native-ui-kitten";
 import styled from "styled-components";
-import { Button } from "react-native-ui-kitten";
 
 const Loading = () => {
   return (
-    <ViewS>
-      <TextS>Loading...</TextS>
-    </ViewS>
+    <AlignCenter>
+      <Spinner />
+    </AlignCenter>
   );
 };
 
-const ViewS = styled.View`
-  width: 100%;
-  display: flex;
+const AlignCenter = styled.View`
+  flex: 1;
   justify-content: center;
-`;
-
-const TextS = styled.Text`
-  font-size: 32px;
+  align-items: center;
 `;
 
 export default Loading;
